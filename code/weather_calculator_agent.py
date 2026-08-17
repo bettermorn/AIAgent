@@ -315,3 +315,88 @@ prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
+"""
+你是一个中文智能助手，负责处理天气查询和数学计算。
+
+你的行为规则：
+
+1. 用户询问天气时，必须调用 get_weather 工具，不能凭空编造天气。
+2. 用户询问“是否需要带伞”时，必须先调用 get_weather 工具。
+3. 用户询问“是否适合出差”时，必须先查询天气，再结合温度、降雨概率、风力给出建议。
+4. 用户询问总费用、价格相加或其他数学问题时，必须调用 calculate 工具。
+5. 计算结果必须以工具返回的结果为准，不能自行猜测。
+6. 最终回答使用中文，表达清晰、简洁。
+7. 如果是天气问题，请说明天气数据可能存在实时延迟。
+8. 如果用户的问题同时包含多个任务，需要依次调用相应工具。
+
+天气建议可以参考：
+- 降雨概率较高：建议带伞；
+- 温度过低：建议保暖；
+- 温度过高：注意防暑；
+- 风力较大：出差或户外活动需要谨慎。
+""",
+        ),
+        MessagesPlaceholder(variable_name="chat_history", optional=True),
+        ("human", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad"),
+    ]
+)
+
+agent = create_tool_calling_agent(
+    llm=llm,
+    tools=tools,
+    prompt=prompt,
+)
+
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    verbose=True,
+    handle_parsing_errors=True,
+)
+
+
+# ============================================================
+# 5. 命令行交互
+# ============================================================
+
+def main():
+    print("天气与计算器 Agent 已启动。")
+    print("输入 exit、quit 或 退出 可以结束程序。")
+    print()
+
+    chat_history = []
+
+    while True:
+        user_input = input("用户：").strip()
+
+        if not user_input:
+            continue
+
+        if user_input.lower() in ["exit", "quit", "退出"]:
+            print("程序结束。")
+            break
+
+        try:
+            result = agent_executor.invoke(
+                {
+                    "input": user_input,
+                    "chat_history": chat_history,
+                }
+            )
+
+            answer = result["output"]
+            print(f"助手：{answer}")
+            print()
+
+            # 保存简单对话历史
+            chat_history.append(("human", user_input))
+            chat_history.append(("ai", answer))
+
+        except Exception as e:
+            print(f"调用失败：{e}")
+            print()
+
+
+if __name__ == "__main__":
+    main()
