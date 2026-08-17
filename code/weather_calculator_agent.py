@@ -8,8 +8,13 @@ from typing import Union
 import requests
 from dotenv import load_dotenv
 
-from langchain.agents import AgentExecutor, create_tool_calling_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.agents import create_agent
+from langchain.agents.middleware import (
+    after_model,
+    before_model,
+    wrap_tool_call,
+)
+from langchain_core.messages import HumanMessage, ToolMessage
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 
@@ -37,7 +42,6 @@ def get_weather(city: str) -> str:
 
     city = city.strip()
 
-    # 这里只是为了让中文城市查询更加稳定
     city_mapping = {
         "北京": "Beijing",
         "上海": "Shanghai",
@@ -73,14 +77,17 @@ def get_weather(city: str) -> str:
                 "lang": "zh",
             },
             headers={
-                "User-Agent": "Mozilla/5.0"
+                "User-Agent": "Mozilla/5.0",
             },
             timeout=15,
         )
+
         response.raise_for_status()
         data = response.json()
+
     except requests.RequestException as e:
         return f"天气查询失败：{e}"
+
     except ValueError:
         return "天气查询失败：天气服务返回的数据格式不正确。"
 
@@ -107,26 +114,18 @@ def get_weather(city: str) -> str:
         hourly_data = today.get("hourly", [])
 
         rain_chances = []
-        weather_types = []
 
         for item in hourly_data:
             chance_of_rain = item.get("chanceofrain", "0")
+
             try:
                 rain_chances.append(int(chance_of_rain))
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
-
-            description = (
-                item.get("lang_zh", [{}])[0].get("value")
-                or item.get("weatherDesc", [{}])[0].get("value")
-            )
-
-            if description:
-                weather_types.append(description)
 
         max_rain_chance = max(rain_chances) if rain_chances else 0
 
-        # 根据天气情况给出基础建议
+        # 根据降雨概率给出建议
         if max_rain_chance >= 60:
             umbrella_advice = "今天降雨概率较高，建议携带雨伞。"
         elif max_rain_chance >= 30:
@@ -134,6 +133,7 @@ def get_weather(city: str) -> str:
         else:
             umbrella_advice = "今天降雨概率较低，通常不必特意带伞。"
 
+        # 根据温度给出建议
         try:
             temperature_number = float(temperature)
         except (ValueError, TypeError):
@@ -163,7 +163,11 @@ def get_weather(city: str) -> str:
             "出行建议": travel_advice,
         }
 
-        return json.dumps(result, ensure_ascii=False, indent=2)
+        return json.dumps(
+            result,
+            ensure_ascii=False,
+            indent=2,
+        )
 
     except (KeyError, IndexError, TypeError) as e:
         return f"天气数据解析失败：{e}"
@@ -188,6 +192,7 @@ _ALLOWED_OPERATORS = {
 def safe_calculate(expression: str) -> Union[int, float]:
     """
     使用 AST 安全解析四则运算表达式。
+
     支持：
     +、-、*、/、%、**、括号、小数、负数。
     """
@@ -196,6 +201,7 @@ def safe_calculate(expression: str) -> Union[int, float]:
         if isinstance(node, ast.Constant):
             if isinstance(node.value, (int, float)):
                 return node.value
+
             raise ValueError("只允许数字")
 
         if isinstance(node, ast.Num):
@@ -223,11 +229,13 @@ def safe_calculate(expression: str) -> Union[int, float]:
                 raise ValueError("不支持的一元运算符")
 
             operand = evaluate(node.operand)
+
             return _ALLOWED_OPERATORS[operator_type](operand)
 
         raise ValueError("表达式中包含不支持的内容")
 
     tree = ast.parse(expression, mode="eval")
+
     return evaluate(tree.body)
 
 
@@ -256,7 +264,10 @@ def calculate(expression: str) -> str:
     expression = expression.replace("，", "")
 
     # 只允许数字、运算符、小数点和括号
-    if not re.fullmatch(r"[\d\s\+\-\*\/\%\(\)\.]+", expression):
+    if not re.fullmatch(
+        r"[\d\s\+\-\*\/\%\(\)\.]+",
+        expression,
+    ):
         return (
             "计算失败：表达式中包含不支持的字符。"
             "请使用数字、+、-、*、/、%、括号和小数点。"
@@ -278,6 +289,7 @@ def calculate(expression: str) -> str:
 
     except ZeroDivisionError:
         return "计算失败：不能除以 0。"
+
     except Exception as e:
         return f"计算失败：{e}"
 
@@ -303,7 +315,79 @@ llm = ChatOpenAI(
 
 
 # ============================================================
-# 4. 创建 LangChain Agent
+# 4. Middleware
+# ============================================================
+
+@before_model
+def log_before_model(state, runtime):
+    """
+    在每次模型调用前执行。
+
+    state 中的 messages 包含当前 Agent 的完整消息链，
+    包括用户消息、AI 消息、工具调用消息和工具返回消息。
+    """
+
+    messages = state.get("messages", [])
+
+    print(
+        f"[middleware] 即将调用模型，当前消息数量：{len(messages)}"
+    )
+
+    return None
+
+
+@after_model
+def log_after_model(state, runtime):
+    """
+    在每次模型调用后执行。
+    """
+
+    messages = state.get("messages", [])
+
+    if messages:
+        last_message = messages[-1]
+
+        print(
+            "[middleware] 模型调用完成，"
+            f"最新消息类型：{type(last_message).__name__}"
+        )
+
+    return None
+
+
+@wrap_tool_call
+def handle_tool_errors(request, handler):
+    """
+    包装所有工具调用，统一捕获工具异常。
+
+    如果工具发生未处理异常，则返回 ToolMessage，
+    让 Agent 可以继续处理，而不是直接导致整个程序崩溃。
+    """
+
+    try:
+        return handler(request)
+
+    except Exception as e:
+        tool_call = request.tool_call
+
+        tool_name = tool_call.get("name", "未知工具")
+        tool_call_id = tool_call.get("id", "")
+
+        print(
+            f"[middleware] 工具调用失败：{tool_name}，错误：{e}"
+        )
+
+        return ToolMessage(
+            content=(
+                f"工具 {tool_name} 调用失败。"
+                f"错误信息：{e}"
+            ),
+            tool_call_id=tool_call_id,
+        )
+
+
+# ============================================================
+# 5. 创建 LangChain Agent
 # ============================================================
 
 tools = [
@@ -311,11 +395,8 @@ tools = [
     calculate,
 ]
 
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-"""
+
+SYSTEM_PROMPT = """
 你是一个中文智能助手，负责处理天气查询和数学计算。
 
 你的行为规则：
@@ -324,48 +405,72 @@ prompt = ChatPromptTemplate.from_messages(
 2. 用户询问“是否需要带伞”时，必须先调用 get_weather 工具。
 3. 用户询问“是否适合出差”时，必须先查询天气，再结合温度、降雨概率、风力给出建议。
 4. 用户询问总费用、价格相加或其他数学问题时，必须调用 calculate 工具。
-5. 计算结果必须以工具返回的结果为准，不能自行猜测。
+5. 计算结果必须以 calculate 工具返回的结果为准，不能自行猜测。
 6. 最终回答使用中文，表达清晰、简洁。
 7. 如果是天气问题，请说明天气数据可能存在实时延迟。
 8. 如果用户的问题同时包含多个任务，需要依次调用相应工具。
+9. 如果工具返回错误信息，应当如实告知用户，不要编造结果。
 
 天气建议可以参考：
+
 - 降雨概率较高：建议带伞；
 - 温度过低：建议保暖；
 - 温度过高：注意防暑；
 - 风力较大：出差或户外活动需要谨慎。
-""",
-        ),
-        MessagesPlaceholder(variable_name="chat_history", optional=True),
-        ("human", "{input}"),
-        MessagesPlaceholder(variable_name="agent_scratchpad"),
-    ]
-)
+"""
 
-agent = create_tool_calling_agent(
-    llm=llm,
-    tools=tools,
-    prompt=prompt,
-)
 
-agent_executor = AgentExecutor(
-    agent=agent,
+agent = create_agent(
+    model=llm,
     tools=tools,
-    verbose=True,
-    handle_parsing_errors=True,
+    system_prompt=SYSTEM_PROMPT,
+    middleware=[
+        log_before_model,
+        log_after_model,
+        handle_tool_errors,
+    ],
 )
 
 
 # ============================================================
-# 5. 命令行交互
+# 6. 命令行交互
 # ============================================================
+
+def get_message_text(message) -> str:
+    """
+    提取 LangChain 消息的文本内容。
+
+    某些模型返回的 content 可能是字符串，
+    也可能是内容块列表。
+    """
+
+    content = getattr(message, "content", "")
+
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        text_parts = []
+
+        for block in content:
+            if isinstance(block, dict):
+                if block.get("type") == "text":
+                    text_parts.append(block.get("text", ""))
+            else:
+                text_parts.append(str(block))
+
+        return "".join(text_parts)
+
+    return str(content)
+
 
 def main():
     print("天气与计算器 Agent 已启动。")
-    print("输入 exit、quit 或 退出 可以结束程序。")
+    print("输入 exit、quit 或 退出可以结束程序。")
     print()
 
-    chat_history = []
+    # 新版 create_agent 使用 messages 作为状态
+    messages = []
 
     while True:
         user_input = input("用户：").strip()
@@ -378,24 +483,34 @@ def main():
             break
 
         try:
-            result = agent_executor.invoke(
+            # 将本轮用户消息追加到 Agent 消息状态中
+            messages.append(
+                HumanMessage(content=user_input)
+            )
+
+            result = agent.invoke(
                 {
-                    "input": user_input,
-                    "chat_history": chat_history,
+                    "messages": messages,
                 }
             )
 
-            answer = result["output"]
+            # create_agent 返回的结果中包含完整 messages
+            messages = result["messages"]
+
+            # 从最后一条消息中提取最终回答
+            answer = get_message_text(messages[-1])
+
             print(f"助手：{answer}")
             print()
-
-            # 保存简单对话历史
-            chat_history.append(("human", user_input))
-            chat_history.append(("ai", answer))
 
         except Exception as e:
             print(f"调用失败：{e}")
             print()
+
+            # 如果本轮调用失败，移除刚刚追加的用户消息，
+            # 避免下一轮继续携带可能不完整的状态
+            if messages and isinstance(messages[-1], HumanMessage):
+                messages.pop()
 
 
 if __name__ == "__main__":
