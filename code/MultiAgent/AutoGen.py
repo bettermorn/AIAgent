@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 import autogen
 
-load_dotenv()
+load_dotenv("config.env")
 
 deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
 
