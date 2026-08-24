@@ -9,6 +9,18 @@ from langchain.agents import create_agent
 from langchain_core.tools import tool
 from langchain_community.utilities import SerpAPIWrapper
 
+
+
+from azure.ai.projects import AIProjectClient
+
+from azure.ai.agents.models import BingGroundingTool
+
+from azure.identity import DefaultAzureCredential
+
+from azure.ai.projects.models import PromptAgentDefinition
+
+
+
 # ----- 安全打印函数 -----
 def safe_print(*args, **kwargs):
     if sys.stdout is None or sys.stdout.closed:
@@ -100,6 +112,179 @@ def search_bocha(query: str) -> str:
     except Exception as e:
         return f"[Bocha 错误: {e}]"
 
+
+def extract_azure_agent_text(message) -> str:
+    """
+    从 Azure AI Agent 消息中提取文本内容。
+    Azure SDK 返回的 message.content 通常是一个列表。
+    """
+    texts = []
+
+    try:
+        contents = getattr(message, "content", None) or []
+
+        for content_item in contents:
+            content_type = getattr(content_item, "type", None)
+
+            if content_type == "text":
+                text_obj = getattr(content_item, "text", None)
+                if text_obj is not None:
+                    value = getattr(text_obj, "value", None)
+                    if value:
+                        texts.append(value)
+
+            # 兼容某些 SDK 版本的结构
+            elif hasattr(content_item, "text"):
+                text_obj = content_item.text
+
+                if isinstance(text_obj, str):
+                    texts.append(text_obj)
+                else:
+                    value = getattr(text_obj, "value", None)
+                    if value:
+                        texts.append(value)
+
+        if texts:
+            return "\n".join(texts)
+
+    except Exception:
+        pass
+
+    # 某些版本可能直接返回字符串
+    if isinstance(getattr(message, "content", None), str):
+        return message.content
+
+    return ""
+
+
+def create_bing_grounding_tool():
+    """
+    创建一个 LangChain 工具。
+    
+    该工具内部调用 Azure AI Foundry Agent，
+    由 Azure Agent 使用 BingGroundingTool 进行搜索。
+    """
+    project_endpoint = os.getenv("AZURE_AI_PROJECT_ENDPOINT")
+    print(project_endpoint)
+    project_connection_id = os.getenv("PROJECT_CONNECTION_ID")
+    print(project_connection_id)
+    azure_agent_model = os.getenv("AZURE_AI_AGENT_MODEL")
+    print(azure_agent_model)
+
+    if not project_endpoint:
+        raise RuntimeError(
+            "未配置 AZURE_AI_PROJECT_ENDPOINT，请检查 config.env。"
+        )
+
+    if not project_connection_id:
+        raise RuntimeError(
+            "未配置 PROJECT_CONNECTION_ID，请检查 config.env。"
+        )
+
+    if not azure_agent_model:
+        raise RuntimeError(
+            "未配置 AZURE_AI_AGENT_MODEL，请检查 config.env。"
+        )
+
+    # 使用 Azure 默认凭据进行身份认证
+    credential = DefaultAzureCredential()
+
+    # 创建 Azure AI Project Client
+    project_client = AIProjectClient(
+        endpoint=project_endpoint,
+        credential=credential,
+    )
+
+    # 创建 Bing Grounding Tool
+    bing_tool = BingGroundingTool(
+        connection_id=project_connection_id,
+    )
+
+    # 在 Azure AI Foundry 中创建一个专门用于 Bing 搜索的 Agent
+    agent_definition = PromptAgentDefinition(
+        model=azure_agent_model,
+        instructions=(
+        "你是一个专业的联网搜索助手。"
+        "当用户提出问题时，必须优先使用 Bing Grounding 搜索实时信息。"
+        "请基于搜索结果回答，不要凭空编造。"
+        "尽量返回关键事实、来源和链接。"
+        ),
+        tools=bing_tool.definitions,
+    )
+
+    bing_agent = project_client.agents.create_version(
+        agent_name="bing-grounding-search-agent",
+        definition=agent_definition,
+    )
+
+    safe_print(
+        f"✅ Bing Grounding Agent 已创建，agent_id={bing_agent.id}"
+    )
+
+    @tool
+    def bing_grounding_search(query: str) -> str:
+        """
+        使用 Azure AI Foundry 的 Bing Grounding 进行联网搜索。
+        
+        适用于实时新闻、网页信息、产品资料、官方文档、
+        当前价格、天气、人物信息等需要联网查询的问题。
+        """
+        if not query or not query.strip():
+            return "搜索关键词不能为空。"
+
+        thread = None
+
+        try:
+            # 为每次查询创建一个新的线程
+            thread = project_client.agents.threads.create()
+
+            # 写入用户问题
+            project_client.agents.messages.create(
+                thread_id=thread.id,
+                role="user",
+                content=query.strip(),
+            )
+
+            # 执行 Azure Agent
+            run = project_client.agents.runs.create_and_process(
+                thread_id=thread.id,
+                agent_id=bing_agent.id,
+            )
+
+            # 检查执行状态
+            if getattr(run, "status", None) != "completed":
+                last_error = getattr(run, "last_error", None)
+                return (
+                    "Bing Grounding 搜索执行失败。"
+                    f"状态：{getattr(run, 'status', 'unknown')}；"
+                    f"错误：{last_error}"
+                )
+
+            # 获取 Azure Agent 返回的消息
+            messages = project_client.agents.messages.list(
+                thread_id=thread.id
+            )
+
+            # 通常 list 返回的是最新消息在前
+            for message in messages:
+                if getattr(message, "role", None) == "assistant":
+                    answer = extract_azure_agent_text(message)
+
+                    if answer:
+                        return f"【Bing Grounding 搜索结果】\n{answer}"
+
+            return "Bing Grounding 没有返回有效的搜索结果。"
+
+        except Exception as e:
+            return f"[Bing Grounding 错误: {e}]"
+
+    return bing_grounding_search
+
+
+
+
+
+
 @tool
 def multi_web_search(query: str) -> str:
     """
@@ -151,20 +336,63 @@ def main():
 
     tools = [get_current_time, calculate]
 
-    # 检查是否至少配置了一个搜索引擎
+    # -----------------------------
+    # 启用 Azure Bing Grounding
+    # -----------------------------
+    bing_endpoint = os.getenv("AZURE_AI_PROJECT_ENDPOINT")
+    project_connection_id = os.getenv("PROJECT_CONNECTION_ID")
+    azure_agent_model = os.getenv("AZURE_AI_AGENT_MODEL")
+
+    if bing_endpoint and project_connection_id and azure_agent_model:
+        try:
+            bing_grounding_search = create_bing_grounding_tool()
+            tools.append(bing_grounding_search)
+
+            safe_print("✅ Azure Bing Grounding 搜索已启用")
+
+        except Exception as e:
+            safe_print(f"⚠️ Azure Bing Grounding 初始化失败：{e}")
+    else:
+        safe_print(
+            "⚠️ 未配置完整的 Azure Bing Grounding 环境变量，"
+            "需要 AZURE_AI_PROJECT_ENDPOINT、"
+            "PROJECT_CONNECTION_ID、"
+            "AZURE_AI_AGENT_MODEL"
+        )
+
+    # -----------------------------
+    # 启用 SerpAPI / Bocha 搜索
+    # -----------------------------
     if os.getenv("SERPAPI_API_KEY") or os.getenv("BOCHA_API_KEY"):
         tools.append(multi_web_search)
-        enabled = []
-        if os.getenv("SERPAPI_API_KEY"): enabled.append("SerpAPI")
-        if os.getenv("BOCHA_API_KEY"): enabled.append("Bocha")
-        safe_print(f"✅ 多引擎搜索已启用（后备引擎：{', '.join(enabled)}）")
-    else:
-        safe_print("⚠️ 未检测到任何搜索引擎 API 密钥（SERPAPI_API_KEY / BOCHA_API_KEY），搜索功能不可用。")
 
+        enabled = []
+
+        if os.getenv("SERPAPI_API_KEY"):
+            enabled.append("SerpAPI")
+
+        if os.getenv("BOCHA_API_KEY"):
+            enabled.append("Bocha")
+
+        safe_print(
+            f"✅ 多引擎搜索已启用（后备引擎：{', '.join(enabled)}）"
+        )
+    else:
+        safe_print(
+            "⚠️ 未检测到 SERPAPI_API_KEY / BOCHA_API_KEY，"
+            "SerpAPI 和 Bocha 搜索不可用。"
+        )
     agent = create_agent(
         model=llm,
         tools=tools,
-        system_prompt="你是一个智能助手，请用中文回答用户的问题。",
+        system_prompt=(
+        "你是一个智能助手，请用中文回答用户的问题。"
+        "如果用户询问实时信息、新闻、当前价格、近期事件、"
+        "网页资料、官方文档或其他需要联网验证的问题，"
+        "请优先调用 bing_grounding_search 工具。"
+        "如果 Bing Grounding 不可用，再尝试其他搜索工具。"
+        "回答联网搜索问题时，请尽量保留来源和链接。"
+        ),
     )
 
     safe_print("\n🤖 智能助手已启动（输入 quit/exit 退出）:\n")
