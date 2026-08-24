@@ -13,11 +13,16 @@ from langchain_community.utilities import SerpAPIWrapper
 
 from azure.ai.projects import AIProjectClient
 
-from azure.ai.agents.models import BingGroundingTool
-
 from azure.identity import DefaultAzureCredential
 
-from azure.ai.projects.models import PromptAgentDefinition
+
+
+from azure.ai.projects.models import (
+    PromptAgentDefinition,
+    BingGroundingTool,
+    BingGroundingSearchToolParameters,
+    BingGroundingSearchConfiguration,
+)
 
 
 
@@ -165,11 +170,11 @@ def create_bing_grounding_tool():
     由 Azure Agent 使用 BingGroundingTool 进行搜索。
     """
     project_endpoint = os.getenv("AZURE_AI_PROJECT_ENDPOINT")
-    print(project_endpoint)
+    
     project_connection_id = os.getenv("PROJECT_CONNECTION_ID")
-    print(project_connection_id)
+    
     azure_agent_model = os.getenv("AZURE_AI_AGENT_MODEL")
-    print(azure_agent_model)
+    print("model:"+azure_agent_model)
 
     if not project_endpoint:
         raise RuntimeError(
@@ -195,10 +200,47 @@ def create_bing_grounding_tool():
         credential=credential,
     )
 
-    # 创建 Bing Grounding Tool
+
+    # 从项目连接中获取 Bing 连接
+
+    # connections = project_client.connections.list()
+
+    # bing_connection = None
+
+    # for connection in connections:
+    # # 根据实际 SDK 返回字段调整判断逻辑
+    #     if "bing" in str(connection).lower():
+    #         bing_connection = connection
+    #     break
+
+    # if bing_connection is None:
+    #     raise RuntimeError("未找到项目中的 Bing Grounding 连接")
+
+
+
+    # bing_connection_id = getattr(
+    #     bing_connection,
+    #     "id",
+    #     getattr(bing_connection, "connection_id", None)
+    # )
+
+    # if not bing_connection_id:
+    #     raise RuntimeError(f"无法从连接对象中获取连接 ID：{bing_connection}")
+
+    # print(bing_connection_id)    
+
+   
     bing_tool = BingGroundingTool(
-        connection_id=project_connection_id,
-    )
+                    bing_grounding=BingGroundingSearchToolParameters(
+                        search_configurations=[
+                            BingGroundingSearchConfiguration(
+                                project_connection_id=project_connection_id
+                            )
+                        ]
+                    )
+                )
+
+
 
     # 在 Azure AI Foundry 中创建一个专门用于 Bing 搜索的 Agent
     agent_definition = PromptAgentDefinition(
@@ -209,12 +251,13 @@ def create_bing_grounding_tool():
         "请基于搜索结果回答，不要凭空编造。"
         "尽量返回关键事实、来源和链接。"
         ),
-        tools=bing_tool.definitions,
+        tools=[bing_tool],
     )
 
     bing_agent = project_client.agents.create_version(
         agent_name="bing-grounding-search-agent",
         definition=agent_definition,
+        description="You are a helpful agent.",
     )
 
     safe_print(
