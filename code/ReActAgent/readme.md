@@ -12,6 +12,84 @@ ReAct 全称是 Reasoning + Acting，即“推理 + 行动”循环。其工作�
 
 - Final Answer：最终给出自然语言回答。
 
+```mermaid
+flowchart TD
+    A[用户输入问题
+Question] --> B[ReActExecutor 初始化消息历史]
+    B --> C[create_agent 单步决策器]
+    
+    C --> D{模型输出是否包含
+Final Answer?}
+    
+    D -- 是 --> E[提取 Final Answer]
+    E --> F[返回中文最终答案给用户]
+    
+    D -- 否 --> G{是否符合格式?
+Thought + Action + Action Input}
+    
+    G -- 否 --> H[写入格式错误 Observation]
+    H --> I[将错误反馈给模型]
+    I --> C
+    
+    G -- 是 --> J[解析 Action 与 Action Input]
+    J --> K{工具名称是否存在?}
+    
+    K -- 否 --> L[生成工具不存在的 Observation]
+    L --> M[将 Action 和 Observation 写入消息历史]
+    M --> C
+    
+    K -- 是 --> N[从 tool_map 获取对应工具]
+    
+    N --> O{Action 类型}
+    
+    O -- get_current_time --> P[调用当前时间工具]
+    O -- calculate --> Q[调用数学计算工具]
+    O -- web_search --> R[调用统一联网搜索工具]
+    
+    R --> R1{Azure Bing Grounding 可用?}
+    R1 -- 是 --> R2[Azure Bing Grounding 搜索]
+    R1 -- 否/失败 --> R3[Bocha 搜索]
+    R3 -- 失败 --> R4[SerpAPI 搜索]
+    
+    P --> S[得到工具执行结果]
+    Q --> S
+    R2 --> S
+    R3 --> S
+    R4 --> S
+    
+    S --> T[生成 Observation]
+    T --> U[将 Thought / Action / Action Input / Observation
+写入消息历史]
+    
+    U --> V{是否超过最大迭代次数?}
+    
+    V -- 否 --> C
+    V -- 是 --> W[返回“达到最大步骤数，未生成最终答案”]
+```
+
+ReAct 的核心循环可以概括为：
+
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant E as ReActExecutor
+    participant L as LLM / create_agent
+    participant T as 工具
+
+    U->>E: Question（用户问题）
+    E->>L: Question + 历史 Observation
+    
+    loop 直到得到 Final Answer 或达到最大迭代次数
+        L-->>E: Thought + Action + Action Input
+        E->>T: 执行 Action(Action Input)
+        T-->>E: 工具结果
+        E->>L: Observation（工具结果）
+    end
+    
+    L-->>E: Thought + Final Answer
+    E-->>U: 最终中文答案
+```
+
 # 2. 为什么代码属于 ReAct 模式？
 - 使用了 langchain.agents.create_agent
 这是 LangChain 官方提供的标准 Agent 构建方法。其默认的推理循环就是 ReAct（基于 LangGraph 实现，但行为与传统的 create_react_agent 完全一致）。你没有显式切换为其他模式（如 Plan-and-Execute、OpenAI Tools 等），所以默认就是 ReAct。
