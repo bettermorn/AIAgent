@@ -13,6 +13,22 @@ ReAct 全称是 Reasoning + Acting，即“推理 + 行动”循环。其工作�
 - Final Answer：最终给出自然语言回答。
 
 ```mermaid
+flowchart LR
+    A[用户问题] --> B[Thought
+思考]
+    B --> C[Action
+选择工具]
+    C --> D[Observation
+获取工具结果]
+    D --> B
+    B --> E[Final Answer
+生成最终答案]
+```
+
+
+
+
+```mermaid
 flowchart TD
     A[用户输入问题
 Question] --> B[ReActExecutor 初始化消息历史]
