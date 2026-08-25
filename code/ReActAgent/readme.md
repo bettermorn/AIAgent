@@ -112,9 +112,16 @@ sequenceDiagram
 
 - 代码中定义了多个工具（get_weather、calculate），且 SYSTEM_PROMPT 中明确要求模型在需要时必须调用工具。这正是 ReAct 中“Act”的部分。
 
-- 你添加的中间件（@before_model、@after_model） 只是用于日志记录和错误处理，并没有改变 Agent 的核心推理循环，因此 ReAct 的本质保持不变。
+- 中间件（@before_model、@after_model） 只是用于日志记录和错误处理，并没有改变 Agent 的核心推理循环，因此 ReAct 的本质保持不变。
 
 - 用户交互方式：当你输入问题后，agent.invoke() 内部会驱动模型反复进行“思考→调用工具→观察结果→再思考”的流程，直到得出最终回答。这完全符合 ReAct 的定义。
+
+
+# 代码说明
+1. weather_calculator_agent.py  天气与计算器Agent
+2. ReAct Agent ReAct_Search.py 基于新版 LangChain 的 `create_agent`，通过外部手动控制 `Thought–Action–Action Input–Observation–Final Answer` 循环，实现支持时间查询、数学计算和联网Bing搜索的严格经典 ReAct 中文智能助手。
+3. ReAct.py 使用 DeepSeek 作为模型、以 LangChain `create_agent` 创建的、支持多个工具调用的现代 Agent。它在行为上属于 ReAct 风格或 Tool-Calling ReAct Agent，但不是显式文本格式的经典 ReAct Agent
+4. test_bing_search.py 一个调用Bing search 的Agent
 
 # 代码说明 1 天气与计算器Agent
 一个完整的 **DeepSeek + LangChain 天气与计算器 Agent** 示例。它支持：
