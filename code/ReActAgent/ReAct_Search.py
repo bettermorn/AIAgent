@@ -1,0 +1,1747 @@
+import os
+import sys
+import uuid
+import requests
+import re
+
+
+from dotenv import load_dotenv
+
+
+from langchain_openai import ChatOpenAI
+from langchain.agents import create_agent
+
+
+
+from langchain_core.tools import tool
+from serpapi import GoogleSearch
+
+from azure.identity import DefaultAzureCredential
+from azure.ai.projects import AIProjectClient
+from azure.ai.projects.models import (
+    PromptAgentDefinition,
+    BingGroundingTool,
+    BingGroundingSearchToolParameters,
+    BingGroundingSearchConfiguration,
+)
+
+
+# =========================================================
+# 安全打印函数
+# =========================================================
+
+def safe_print(*args, **kwargs):
+    """
+    避免某些运行环境下 sys.stdout 不可用导致程序异常。
+    """
+    if sys.stdout is None or sys.stdout.closed:
+        try:
+            sys.stdout = sys.__stdout__
+        except Exception:
+            kwargs["file"] = sys.stderr
+
+    try:
+        print(*args, **kwargs)
+    except ValueError:
+        try:
+            print(*args, **kwargs, file=sys.stderr)
+        except Exception:
+            pass
+
+
+# =========================================================
+# 本地工具
+# =========================================================
+
+@tool
+def get_current_time() -> str:
+    """
+    返回当前的日期和时间，格式为 YYYY-MM-DD HH:MM:SS。
+    """
+    from datetime import datetime
+
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+@tool
+def calculate(expression: str) -> str:
+    """
+    安全计算数学表达式。
+
+    支持：
+    - 加法：+
+    - 减法：-
+    - 乘法：*
+    - 除法：/
+    - 幂运算：**
+    - 括号
+    - abs()
+    - round()
+
+    示例：
+    - 2 + 3 * 4
+    - (10 + 5) / 3
+    """
+    try:
+        allowed_functions = {
+            "abs": abs,
+            "round": round,
+        }
+
+        result = eval(
+            expression,
+            {
+                "__builtins__": None,
+            },
+            allowed_functions,
+        )
+
+        return f"计算结果: {result}"
+
+    except Exception as exc:
+        return f"计算错误: {exc}"
+
+
+# =========================================================
+# SerpAPI 搜索
+# =========================================================
+
+def search_serpapi(query: str) -> str | None:
+    """
+    使用 SerpAPI 搜索。
+    """
+    api_key = os.getenv("SERPAPI_API_KEY")
+
+    if not api_key:
+        return None
+
+    try:
+        wrapper = SerpAPIWrapper(
+            serpapi_api_key=api_key,
+            timeout=10,
+        )
+
+        result = wrapper.run(query)
+
+        if not result:
+            return "未找到相关结果。"
+
+        return result
+
+    except Exception as exc:
+        error_msg = str(exc).lower()
+
+        if "timeout" in error_msg:
+            return "[SerpAPI 超时]"
+
+        if "403" in error_msg or "unauthorized" in error_msg:
+            return "[SerpAPI 密钥无效]"
+
+        return f"[SerpAPI 错误: {exc}]"
+
+
+# =========================================================
+# Bocha 搜索
+# =========================================================
+
+def search_bocha(query: str) -> str | None:
+    """
+    使用 Bocha Search 搜索。
+    """
+    api_key = os.getenv("BOCHA_API_KEY")
+
+    if not api_key:
+        return None
+
+    url = "https://api.bocha.cn/v1/web-search"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "query": query,
+        "freshness": "noLimit",
+        "summary": True,
+        "count": 5,
+    }
+
+    try:
+        response = requests.post(
+            url,
+            headers=headers,
+            json=payload,
+            timeout=20,
+        )
+
+        response.raise_for_status()
+
+        data = response.json()
+
+        # 兼容不同版本的 Bocha 返回结构
+        root = data
+
+        if isinstance(root.get("data"), dict):
+            root = root["data"]
+
+        web_pages = root.get("webPages", [])
+
+        if isinstance(web_pages, dict):
+            web_pages = web_pages.get("value", [])
+
+        # 有些返回结构可能使用 results
+        if not web_pages:
+            web_pages = root.get("results", [])
+
+        if not isinstance(web_pages, list):
+            web_pages = []
+
+        if not web_pages:
+            return "未找到相关结果。"
+
+        results = []
+
+        for index, page in enumerate(web_pages[:5], 1):
+            if not isinstance(page, dict):
+                continue
+
+            title = (
+                page.get("name")
+                or page.get("title")
+                or "无标题"
+            )
+
+            snippet = (
+                page.get("snippet")
+                or page.get("description")
+                or page.get("summary")
+                or ""
+            )
+
+            page_url = (
+                page.get("url")
+                or page.get("link")
+                or ""
+            )
+
+            results.append(
+                f"{index}. {title}\n"
+                f"   摘要：{snippet}\n"
+                f"   链接：{page_url}"
+            )
+
+        if not results:
+            return "未找到相关结果。"
+
+        return "\n\n".join(results)
+
+    except requests.exceptions.Timeout:
+        return "[Bocha 超时]"
+
+    except requests.exceptions.HTTPError as exc:
+        status_code = getattr(
+            exc.response,
+            "status_code",
+            None,
+        )
+
+        if status_code in (401, 403):
+            return "[Bocha API 密钥无效或无权限]"
+
+        return f"[Bocha HTTP 错误: {exc}]"
+
+    except requests.exceptions.RequestException as exc:
+        return f"[Bocha 网络错误: {exc}]"
+
+    except Exception as exc:
+        return f"[Bocha 错误: {exc}]"
+
+
+# =========================================================
+# Azure Bing Grounding 引用提取
+# =========================================================
+
+def extract_citations_from_object(obj, citations: list[dict]):
+    """
+    从 Azure Responses API 的事件、响应、输出项或内容项中提取
+    Bing Grounding 返回的 URL 引用。
+
+    兼容以下结构：
+
+        event.item.content[].annotations[]
+        response.output[].content[].annotations[]
+        response.output_item.done
+        response.completed
+    """
+
+    if obj is None:
+        return
+
+    visited = set()
+
+    def add_citation(annotation):
+        """
+        从 annotation 对象中提取 URL。
+        """
+        try:
+            if isinstance(annotation, dict):
+                annotation_type = annotation.get("type")
+                citation_url = annotation.get("url")
+                citation_title = annotation.get("title")
+
+            else:
+                annotation_type = getattr(
+                    annotation,
+                    "type",
+                    None,
+                )
+
+                citation_url = getattr(
+                    annotation,
+                    "url",
+                    None,
+                )
+
+                citation_title = getattr(
+                    annotation,
+                    "title",
+                    None,
+                )
+
+            if annotation_type != "url_citation":
+                return
+
+            if not citation_url:
+                return
+
+            citation = {
+                "title": citation_title or citation_url,
+                "url": citation_url,
+            }
+
+            if not any(
+                item.get("url") == citation_url
+                for item in citations
+            ):
+                citations.append(citation)
+
+        except Exception as exc:
+            safe_print(
+                f"解析 Bing 引用时出现警告：{exc}"
+            )
+
+    def walk(node):
+        """
+        递归遍历 Azure SDK 返回对象。
+        """
+        if node is None:
+            return
+
+        node_id = id(node)
+
+        if node_id in visited:
+            return
+
+        visited.add(node_id)
+
+        # 处理字典
+        if isinstance(node, dict):
+            if node.get("type") == "url_citation":
+                add_citation(node)
+
+            for value in node.values():
+                walk(value)
+
+            return
+
+        # 处理列表、元组
+        if isinstance(node, (list, tuple)):
+            for item in node:
+                walk(item)
+
+            return
+
+        # 处理 Azure SDK 对象
+        object_type = getattr(
+            node,
+            "type",
+            None,
+        )
+
+        if object_type == "url_citation":
+            add_citation(node)
+
+        # 只遍历可能包含引用的字段，
+        # 避免遍历 SDK 对象的全部内部属性。
+        possible_fields = [
+            "item",
+            "response",
+            "output",
+            "content",
+            "annotations",
+        ]
+
+        for field_name in possible_fields:
+            try:
+                value = getattr(
+                    node,
+                    field_name,
+                    None,
+                )
+
+                if value is not None:
+                    walk(value)
+
+            except Exception:
+                continue
+
+    try:
+        walk(obj)
+
+    except Exception as exc:
+        safe_print(
+            f"提取 Bing 参考来源时出现警告：{exc}"
+        )
+
+def get_bing_connection_id(
+    project_client: AIProjectClient,
+) -> str:
+    """
+    获取 Bing Grounding 项目连接 ID。
+
+    优先使用：
+        PROJECT_CONNECTION_ID
+
+    如果没有配置，则使用：
+        BING_CONNECTION_NAME
+
+    默认连接名称为：
+        Search
+    """
+
+    configured_connection_id = os.getenv(
+        "PROJECT_CONNECTION_ID"
+    )
+
+    if configured_connection_id:
+        # safe_print(
+        #     "使用环境变量 PROJECT_CONNECTION_ID 作为 Bing 连接："
+        #     f"{configured_connection_id}"
+        # )
+
+        return configured_connection_id
+
+    connection_name = os.getenv(
+        "BING_CONNECTION_NAME",
+        "Search",
+    )
+
+    try:
+        bing_connection = project_client.connections.get(
+            connection_name
+        )
+    except Exception as exc:
+        raise RuntimeError(
+            f"无法获取项目连接 {connection_name!r}。"
+            "请确认 Azure AI Foundry 项目中存在该连接，"
+            f"或者配置 PROJECT_CONNECTION_ID。原始错误：{exc}"
+        ) from exc
+
+    bing_connection_id = getattr(
+        bing_connection,
+        "id",
+        None,
+    )
+
+    if not bing_connection_id:
+        raise RuntimeError(
+            f"连接 {connection_name!r} 没有返回有效的 id："
+            f"{bing_connection}"
+        )
+
+    safe_print(
+        f"已通过连接名称获取 Bing 连接："
+        f"{connection_name} -> {bing_connection_id}"
+    )
+
+    return bing_connection_id
+
+
+# =========================================================
+# 创建 Azure Bing Grounding LangChain 工具
+# =========================================================
+
+def create_bing_grounding_tool():
+    """
+    创建一个 LangChain Bing 搜索工具。
+
+    工具内部使用：
+
+        Azure AI Foundry Prompt Agent
+        + BingGroundingTool
+        + Azure Responses API
+
+    工具返回：
+
+        搜索答案
+        参考来源 URL
+    """
+
+    project_endpoint = os.getenv(
+        "AZURE_AI_PROJECT_ENDPOINT"
+    )
+
+    azure_agent_model = os.getenv(
+        "AZURE_AI_AGENT_MODEL"
+    )
+
+    if not project_endpoint:
+        raise RuntimeError(
+            "未配置 AZURE_AI_PROJECT_ENDPOINT，"
+            "请检查 config.env。"
+        )
+
+    if not azure_agent_model:
+        raise RuntimeError(
+            "未配置 AZURE_AI_AGENT_MODEL，"
+            "请检查 config.env。"
+        )
+
+    safe_print(
+        f"Azure Bing Grounding Agent 模型："
+        f"{azure_agent_model}"
+    )
+
+    # -----------------------------------------------------
+    # 创建 Azure AI Project Client
+    # -----------------------------------------------------
+
+    project_client = AIProjectClient(
+        endpoint=project_endpoint,
+        credential=DefaultAzureCredential(),
+    )
+
+    # -----------------------------------------------------
+    # 获取 Azure Responses API 客户端
+    # -----------------------------------------------------
+
+    openai_client = project_client.get_openai_client()
+
+    # -----------------------------------------------------
+    # 获取 Bing Grounding 连接
+    # -----------------------------------------------------
+
+    bing_connection_id = get_bing_connection_id(
+        project_client
+    )
+
+    # -----------------------------------------------------
+    # 创建 Bing Grounding Tool
+    # -----------------------------------------------------
+
+    bing_tool = BingGroundingTool(
+        bing_grounding=BingGroundingSearchToolParameters(
+            search_configurations=[
+                BingGroundingSearchConfiguration(
+                    project_connection_id=bing_connection_id
+                )
+            ]
+        )
+    )
+
+    # -----------------------------------------------------
+    # 创建 Azure AI Foundry Prompt Agent
+    # -----------------------------------------------------
+
+    agent_name = (
+        "bing-grounding-search-"
+        f"{uuid.uuid4().hex[:8]}"
+    )
+
+    agent_definition = PromptAgentDefinition(
+        model=azure_agent_model,
+
+        instructions="""
+你是一名支持中文的联网搜索助手。
+
+请遵循以下要求：
+
+1. 用户可以使用中文提问。
+2. 对于天气、新闻、日期、价格、股票、体育、旅游、实时信息、最新信息以及用户明确要求搜索的问题，必须使用 Bing Grounding。
+3. 必要时，可以将中文问题转换为中文、英文或中英文组合搜索查询。
+4. 搜索完成后，必须使用中文回答。
+5. 必须优先依据 Bing Grounding 返回的搜索结果回答。
+6. 不要凭空编造搜索结果中不存在的信息。
+7. 如果搜索结果包含网页来源，应在回答中说明相关来源。
+8. 如果搜索结果不足以回答问题，应明确说明信息不足。
+""",
+
+        tools=[
+            bing_tool
+        ],
+    )
+
+    bing_agent = project_client.agents.create_version(
+        agent_name=agent_name,
+        definition=agent_definition,
+        description=(
+            "支持中文交互并返回参考来源的 "
+            "Azure Bing Grounding 搜索 Agent"
+        ),
+    )
+
+    safe_print(
+        "✅ Azure Bing Grounding Agent 创建成功"
+    )
+
+    safe_print(
+        f"   Agent ID: {bing_agent.id}"
+    )
+
+    safe_print(
+        f"   Agent Name: {bing_agent.name}"
+    )
+
+    safe_print(
+        f"   Agent Version: {bing_agent.version}"
+    )
+
+# =========================================================
+# 创建  LangChain Agent 工具
+# =========================================================
+
+def create_langchain_agent():
+    """
+    创建严格意义上的经典 ReAct Agent。
+
+    注意：
+
+    新版 LangChain 的 create_agent 本身是通用 Agent
+    构建入口，默认采用消息和结构化工具调用机制。
+
+    为了实现经典文本 ReAct，本函数采用以下设计：
+
+    1. 使用 create_agent 创建“单步决策器”；
+    2. 不把工具直接交给 create_agent；
+    3. 由外部代码手动执行 ReAct 循环；
+    4. 手动解析：
+           Thought
+           Action
+           Action Input
+           Observation
+           Final Answer
+
+    ReAct 流程：
+
+        Question
+        -> Thought
+        -> Action
+        -> Action Input
+        -> Observation
+        -> Thought
+        -> ...
+        -> Final Answer
+    """
+
+    deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
+
+    if not deepseek_api_key:
+        raise RuntimeError(
+            "未检测到 DEEPSEEK_API_KEY，"
+            "请检查 config.env。"
+        )
+
+    # ---------------------------------------------------------
+    # 创建工具
+    # ---------------------------------------------------------
+
+    web_search_tool = create_unified_search_tool()
+
+    tools = [
+        get_current_time,
+        calculate,
+        web_search_tool,
+    ]
+
+    # ---------------------------------------------------------
+    # 建立工具映射
+    # ---------------------------------------------------------
+
+    tool_map = {
+        tool.name: tool
+        for tool in tools
+    }
+
+    # ---------------------------------------------------------
+    # 输出可用搜索引擎
+    # ---------------------------------------------------------
+
+    enabled_engines = []
+
+    if (
+        os.getenv("AZURE_AI_PROJECT_ENDPOINT")
+        and os.getenv("AZURE_AI_AGENT_MODEL")
+    ):
+        enabled_engines.append("Azure Bing Grounding")
+
+    if os.getenv("BOCHA_API_KEY"):
+        enabled_engines.append("Bocha")
+
+    if os.getenv("SERPAPI_API_KEY"):
+        enabled_engines.append("SerpAPI")
+
+    if enabled_engines:
+        safe_print(
+            "✅ 可用搜索引擎："
+            + "、".join(enabled_engines)
+        )
+    else:
+        safe_print("⚠️ 当前没有配置搜索引擎")
+
+    # ---------------------------------------------------------
+    # 创建模型
+    # ---------------------------------------------------------
+
+    model = ChatOpenAI(
+        model=os.getenv(
+            "DEEPSEEK_MODEL",
+            "deepseek-chat",
+        ),
+        api_key=deepseek_api_key,
+        base_url=os.getenv(
+            "DEEPSEEK_BASE_URL",
+            "https://api.deepseek.com",
+        ),
+        temperature=0.3,
+        timeout=60,
+        max_retries=2,
+    )
+
+    # ---------------------------------------------------------
+    # 构造工具说明
+    # ---------------------------------------------------------
+
+    tool_descriptions = []
+
+    for tool in tools:
+        description = tool.description or "无工具描述"
+
+        tool_descriptions.append(
+            f"工具名称：{tool.name}\n"
+            f"工具描述：{description}"
+        )
+
+    tools_text = "\n\n".join(tool_descriptions)
+    tool_names = ", ".join(tool_map.keys())
+
+    # ---------------------------------------------------------
+    # 经典 ReAct 系统提示词
+    # ---------------------------------------------------------
+    #
+    # 这里明确要求模型一次只完成一个 ReAct 步骤：
+    #
+    # - 要么返回 Thought + Action + Action Input
+    # - 要么返回 Thought + Final Answer
+    #
+    # 工具执行由外层 Python 代码完成。
+    # ---------------------------------------------------------
+
+    react_system_prompt = f"""
+你是一个支持中文的经典 ReAct 决策器。
+
+你必须严格按照以下格式工作：
+
+当需要调用工具时，只能输出：
+
+Thought: 对当前问题进行简短分析，并说明下一步行动
+Action: 工具名称
+Action Input: 工具输入
+
+当不需要继续调用工具时，只能输出：
+
+Thought: 对已有信息进行简短总结
+Final Answer: 使用中文给出的最终答案
+
+可用工具：
+
+{tools_text}
+
+允许使用的工具名称：
+
+[{tool_names}]
+
+必须遵守以下规则：
+
+1. 用户使用中文提问时，最终答案必须使用中文。
+2. 新闻、天气、股票、体育、价格、旅游、最新信息、
+   实时信息、网页资料、官方文档，以及用户明确要求搜索的问题，
+   必须调用 web_search。
+3. 不得使用模型记忆直接回答实时问题。
+4. 数学计算优先调用 calculate。
+5. 当前日期和时间问题必须调用 get_current_time。
+6. Action 必须是允许使用的工具名称之一。
+7. Action Input 必须是工具所需要的输入。
+8. 每次只能输出一个 Action。
+9. 不要自行伪造 Observation。
+10. 你只能根据历史中已经存在的 Observation 继续工作。
+11. 如果 Observation 信息不足，可以再次调用工具。
+12. 如果信息仍然不足，必须在 Final Answer 中明确说明。
+13. 不得编造工具返回结果中不存在的信息。
+14. 如果搜索结果中有 URL，最终答案必须保留参考来源。
+15. 不要输出 Markdown 代码块。
+16. 不要在同一次响应中同时输出 Action 和 Final Answer。
+17. Thought 应保持简短，只用于说明当前步骤，不要输出长篇内部推理。
+
+输出格式必须严格匹配以下两种格式之一：
+
+格式一：
+
+Thought: ...
+Action: ...
+Action Input: ...
+
+格式二：
+
+Thought: ...
+Final Answer: ...
+"""
+
+    # ---------------------------------------------------------
+    # 创建新版 LangChain Agent
+    # ---------------------------------------------------------
+    #
+    # 这里故意不把 tools 传给 create_agent。
+    #
+    # 原因：
+    #
+    # 如果把 tools 传给 create_agent，
+    # create_agent 会自行管理工具调用循环，
+    # 其行为属于现代 Tool Calling Agent，
+    # 而不是我们手动控制的经典文本 ReAct。
+    #
+    # 外层 ReActExecutor 会负责：
+    #
+    # 1. 读取模型的 Action
+    # 2. 执行实际工具
+    # 3. 生成 Observation
+    # 4. 再次调用这个 agent
+    # ---------------------------------------------------------
+
+    planner_agent = create_agent(
+        model=model,
+        tools=[],
+        system_prompt=react_system_prompt,
+    )
+
+    safe_print("✅ 严格经典 ReAct Agent 创建成功")
+
+    # 返回一个自定义执行器
+    return ReActExecutor(
+        planner_agent=planner_agent,
+        tool_map=tool_map,
+        max_iterations=8,
+    )
+
+
+class ReActExecutor:
+    """
+    经典文本 ReAct 执行器。
+
+    它负责手动实现：
+
+        Thought
+        -> Action
+        -> Action Input
+        -> Observation
+        -> Thought
+        -> Final Answer
+    """
+
+    def __init__(
+        self,
+        planner_agent,
+        tool_map: dict,
+        max_iterations: int = 8,
+    ):
+        self.planner_agent = planner_agent
+        self.tool_map = tool_map
+        self.max_iterations = max_iterations
+
+    @staticmethod
+    def _message_to_text(message) -> str:
+        """
+        将 LangChain AIMessage 的 content 转换为字符串。
+        """
+
+        content = getattr(
+            message,
+            "content",
+            "",
+        )
+
+        if isinstance(content, str):
+            return content.strip()
+
+        if isinstance(content, list):
+            parts = []
+
+            for item in content:
+                if isinstance(item, dict):
+                    text = (
+                        item.get("text")
+                        or item.get("content")
+                        or ""
+                    )
+
+                    if text:
+                        parts.append(str(text))
+                else:
+                    parts.append(str(item))
+
+            return "\n".join(parts).strip()
+
+        return str(content).strip()
+
+    @staticmethod
+    def _extract_final_answer(text: str) -> str | None:
+        """
+        提取：
+
+            Final Answer: ...
+
+        支持多行最终答案。
+        """
+
+        match = re.search(
+            r"(?ims)^\s*Final\s+Answer\s*:\s*(.*?)\s*$",
+            text,
+        )
+
+        if not match:
+            return None
+
+        answer = match.group(1).strip()
+
+        if not answer:
+            return None
+
+        return answer
+
+    @staticmethod
+    def _extract_action(text: str):
+        """
+        提取：
+
+            Action: 工具名称
+            Action Input: 工具输入
+
+        返回：
+
+            (action_name, action_input)
+
+        如果无法解析，则返回 None。
+        """
+
+        action_match = re.search(
+            r"(?im)^\s*Action\s*:\s*([^\n]+?)\s*$",
+            text,
+        )
+
+        action_input_match = re.search(
+            r"(?ims)^\s*Action\s+Input\s*:\s*(.*?)\s*$",
+            text,
+        )
+
+        if not action_match or not action_input_match:
+            return None
+
+        action_name = action_match.group(1).strip()
+        action_input = action_input_match.group(1).strip()
+
+        if not action_name or not action_input:
+            return None
+
+        return action_name, action_input
+
+    def _call_planner(self, messages):
+        """
+        调用新版 create_agent 创建的单步决策器。
+        """
+
+        result = self.planner_agent.invoke(
+            {
+                "messages": messages,
+            }
+        )
+
+        result_messages = result.get(
+            "messages",
+            [],
+        )
+
+        if not result_messages:
+            raise RuntimeError(
+                "ReAct 决策器没有返回消息。"
+            )
+
+        final_message = result_messages[-1]
+
+        return self._message_to_text(final_message)
+
+    def invoke(self, inputs: dict) -> dict:
+        """
+        执行完整 ReAct 循环。
+
+        输入格式：
+
+            {
+                "input": "用户问题"
+            }
+
+        返回格式：
+
+            {
+                "input": "...",
+                "output": "...",
+                "intermediate_steps": [...]
+            }
+        """
+
+        user_question = inputs.get("input")
+
+        if not user_question:
+            raise ValueError(
+                "ReActExecutor 需要接收 input 字段。"
+            )
+
+        user_question = str(user_question).strip()
+
+        # -----------------------------------------------------
+        # messages 是 ReAct 的工作记忆
+        # -----------------------------------------------------
+
+        messages = [
+            {
+                "role": "user",
+                "content": (
+                    "Question: "
+                    f"{user_question}"
+                ),
+            }
+        ]
+
+        intermediate_steps = []
+
+        for iteration in range(
+            1,
+            self.max_iterations + 1,
+        ):
+            safe_print(
+                f"\n========== ReAct 第 {iteration} 步 =========="
+            )
+
+            # -------------------------------------------------
+            # 让模型生成本轮 Thought / Action 或 Final Answer
+            # -------------------------------------------------
+
+            model_output = self._call_planner(
+                messages
+            )
+
+            safe_print("\n模型输出：")
+            safe_print(model_output)
+
+            # -------------------------------------------------
+            # 如果模型已经给出最终答案，则结束
+            # -------------------------------------------------
+
+            final_answer = self._extract_final_answer(
+                model_output
+            )
+
+            if final_answer is not None:
+                return {
+                    "input": user_question,
+                    "output": final_answer,
+                    "intermediate_steps": intermediate_steps,
+                }
+
+            # -------------------------------------------------
+            # 否则解析 Action
+            # -------------------------------------------------
+
+            parsed_action = self._extract_action(
+                model_output
+            )
+
+            if parsed_action is None:
+                parsing_observation = (
+                    "ReAct 格式错误。"
+                    "你必须严格输出以下格式之一：\n\n"
+                    "Thought: ...\n"
+                    "Action: 工具名称\n"
+                    "Action Input: 工具输入\n\n"
+                    "或者：\n\n"
+                    "Thought: ...\n"
+                    "Final Answer: ..."
+                )
+
+                safe_print(
+                    "\nObservation："
+                    f"{parsing_observation}"
+                )
+
+                # 将模型的错误输出和解析错误反馈给下一轮
+                messages.append(
+                    {
+                        "role": "assistant",
+                        "content": model_output,
+                    }
+                )
+
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            "Observation: "
+                            f"{parsing_observation}"
+                        ),
+                    }
+                )
+
+                continue
+
+            action_name, action_input = parsed_action
+
+            # -------------------------------------------------
+            # 检查工具是否存在
+            # -------------------------------------------------
+
+            if action_name not in self.tool_map:
+                observation = (
+                    f"工具 {action_name!r} 不存在。"
+                    "允许使用的工具只有："
+                    + "、".join(self.tool_map.keys())
+                )
+
+                safe_print(
+                    "\nObservation："
+                    f"{observation}"
+                )
+
+                intermediate_steps.append(
+                    {
+                        "thought_action": model_output,
+                        "action": action_name,
+                        "action_input": action_input,
+                        "observation": observation,
+                    }
+                )
+
+                messages.append(
+                    {
+                        "role": "assistant",
+                        "content": model_output,
+                    }
+                )
+
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            "Observation: "
+                            f"{observation}"
+                        ),
+                    }
+                )
+
+                continue
+
+            # -------------------------------------------------
+            # 执行工具
+            # -------------------------------------------------
+
+            selected_tool = self.tool_map[action_name]
+
+            try:
+                tool_result = selected_tool.invoke(
+                    action_input
+                )
+
+                observation = str(
+                    tool_result
+                ).strip()
+
+                if not observation:
+                    observation = (
+                        "工具执行成功，但没有返回内容。"
+                    )
+
+            except Exception as exc:
+                observation = (
+                    f"工具执行失败：{exc}"
+                )
+
+            safe_print("\nAction：")
+            safe_print(action_name)
+
+            safe_print("\nAction Input：")
+            safe_print(action_input)
+
+            safe_print("\nObservation：")
+            safe_print(observation)
+
+            intermediate_steps.append(
+                {
+                    "thought_action": model_output,
+                    "action": action_name,
+                    "action_input": action_input,
+                    "observation": observation,
+                }
+            )
+
+            # -------------------------------------------------
+            # 将当前步骤写入 ReAct 历史
+            # -------------------------------------------------
+
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": model_output,
+                }
+            )
+
+            messages.append(
+                {
+                    "role": "user",
+                    "content": (
+                        "Observation: "
+                        f"{observation}\n\n"
+                        "请根据该 Observation 继续执行 ReAct。"
+                    ),
+                }
+            )
+
+        # -----------------------------------------------------
+        # 达到最大迭代次数
+        # -----------------------------------------------------
+
+        timeout_answer = (
+            "ReAct 执行达到最大步骤数，"
+            "未能生成最终答案。"
+        )
+
+        return {
+            "input": user_question,
+            "output": timeout_answer,
+            "intermediate_steps": intermediate_steps,
+        }
+
+
+
+
+    # -----------------------------------------------------
+    # 定义 LangChain 工具
+    # -----------------------------------------------------
+
+@tool
+def bing_grounding_search(query: str) -> str:
+        """
+        使用 Azure AI Foundry Bing Grounding 搜索互联网。
+
+        适用于：
+
+        - 实时新闻
+        - 当前日期
+        - 当前天气
+        - 当前价格
+        - 股票和体育信息
+        - 旅游信息
+        - 产品资料
+        - 官方文档
+        - 最新事件
+        - 需要网页来源验证的问题
+
+        返回内容包含搜索答案和参考来源。
+        """
+
+        if not query or not query.strip():
+            return "搜索关键词不能为空。"
+
+        query = query.strip()
+
+        prompt = f"""
+请使用 Bing Grounding 搜索下面的问题，并用中文回答。
+
+要求：
+
+1. 必须使用 Bing Grounding。
+2. 对于实时信息，必须以本次搜索结果为准。
+3. 必要时可以使用中文、英文或中英文组合关键词搜索。
+4. 回答必须使用中文。
+5. 不要编造搜索结果中没有的信息。
+6. 在回答末尾列出相关参考来源。
+7. 如果没有找到可靠结果，请明确说明。
+
+用户问题：
+
+{query}
+"""
+
+        answer_parts = []
+        citations = []
+
+        try:
+            # -------------------------------------------------
+            # 调用 Azure Responses API
+            # -------------------------------------------------
+
+            stream_response = openai_client.responses.create(
+                stream=True,
+
+                # 与可以正常工作的代码保持一致：
+                # 强制调用 Bing Grounding
+                tool_choice="required",
+
+                input=prompt,
+
+                extra_body={
+                    "agent_reference": {
+                        "name": bing_agent.name,
+                        "type": "agent_reference",
+                    }
+                },
+            )
+
+            # -------------------------------------------------
+            # 处理流式事件
+            # -------------------------------------------------
+
+            for event in stream_response:
+                event_type = getattr(
+                    event,
+                    "type",
+                    None,
+                )
+
+                # 每个事件都尝试提取引用
+                extract_citations_from_object(
+                    event,
+                    citations,
+                )
+
+                # 文本增量
+                if event_type == "response.output_text.delta":
+                    delta = getattr(
+                        event,
+                        "delta",
+                        None,
+                    )
+
+                    if delta:
+                        answer_parts.append(delta)
+
+                # 响应完成
+                elif event_type == "response.completed":
+                    response = getattr(
+                        event,
+                        "response",
+                        None,
+                    )
+
+                    if response is not None:
+                        full_output_text = getattr(
+                            response,
+                            "output_text",
+                            None,
+                        )
+
+                        if (
+                            full_output_text
+                            and not answer_parts
+                        ):
+                            answer_parts.append(
+                                full_output_text
+                            )
+
+                        extract_citations_from_object(
+                            response,
+                            citations,
+                        )
+
+            # -------------------------------------------------
+            # 组装搜索答案
+            # -------------------------------------------------
+
+            answer = "".join(answer_parts).strip()
+
+            if not answer:
+                answer = "Bing 没有返回可用的文字答案。"
+
+            # -------------------------------------------------
+            # 追加参考来源
+            # -------------------------------------------------
+
+            if citations:
+                source_lines = [
+                    "\n参考来源："
+                ]
+
+                for index, citation in enumerate(
+                    citations,
+                    start=1,
+                ):
+                    title = citation.get(
+                        "title",
+                        "网页来源",
+                    )
+
+                    url = citation.get(
+                        "url",
+                        "",
+                    )
+
+                    source_lines.append(
+                        f"{index}. {title}\n"
+                        f"   {url}"
+                    )
+
+                answer = (
+                    f"{answer}\n"
+                    + "\n".join(source_lines)
+                )
+
+            else:
+                answer = (
+                    f"{answer}\n\n"
+                    "参考来源：本次响应未提取到 URL 引用。"
+                )
+
+            return answer
+
+        except Exception as exc:
+            safe_print(
+                f"Azure Bing Grounding 搜索失败：{exc}"
+            )
+
+            return (
+                "Azure Bing Grounding 搜索失败。"
+                f"错误信息：{exc}"
+            )
+
+        return bing_grounding_search
+
+
+
+def create_unified_search_tool():
+    """
+    创建统一搜索工具。
+
+    优先使用 Azure Bing Grounding。
+    如果 Azure Bing 不可用，则自动使用 Bocha 或 SerpAPI。
+    """
+
+    bing_search_tool = None
+
+    # Azure Bing 是可选功能，初始化失败不能阻止程序启动
+    try:
+        if (
+            os.getenv("AZURE_AI_PROJECT_ENDPOINT")
+            and os.getenv("AZURE_AI_AGENT_MODEL")
+        ):
+            bing_search_tool = create_bing_grounding_tool()
+
+            safe_print(
+                "✅ Azure Bing Grounding 搜索已启用"
+            )
+
+    except Exception as exc:
+        safe_print(
+            "⚠️ Azure Bing Grounding 初始化失败，"
+            "将使用备用搜索引擎："
+            f"{exc}"
+        )
+
+    has_bocha = bool(
+        os.getenv("BOCHA_API_KEY")
+    )
+
+    has_serpapi = bool(
+        os.getenv("SERPAPI_API_KEY")
+    )
+
+    if not bing_search_tool and not has_bocha and not has_serpapi:
+        raise RuntimeError(
+            "没有可用的搜索引擎。\n"
+            "请至少配置以下一种搜索服务：\n"
+            "1. Azure Bing Grounding：\n"
+            "   AZURE_AI_PROJECT_ENDPOINT\n"
+            "   AZURE_AI_AGENT_MODEL\n"
+            "   PROJECT_CONNECTION_ID 或 BING_CONNECTION_NAME\n"
+            "2. Bocha：BOCHA_API_KEY\n"
+            "3. SerpAPI：SERPAPI_API_KEY"
+        )
+
+    @tool
+    def web_search(query: str) -> str:
+        """
+        搜索互联网并返回搜索结果。
+
+        适用于：
+
+        - 新闻
+        - 天气
+        - 股票
+        - 体育
+        - 价格
+        - 旅游
+        - 产品信息
+        - 官方文档
+        - 最新事件
+        - 用户明确要求联网搜索的问题
+        """
+
+        if not query or not query.strip():
+            return "搜索关键词不能为空。"
+
+        query = query.strip()
+
+        # -------------------------------------------------
+        # 优先使用 Azure Bing Grounding
+        # -------------------------------------------------
+
+        if bing_search_tool is not None:
+            try:
+                result = bing_search_tool.invoke(
+                    {
+                        "query": query
+                    }
+                )
+
+                result = str(result).strip()
+
+                # Bing 返回正常结果
+                if (
+                    result
+                    and not result.startswith(
+                        "Azure Bing Grounding 搜索失败"
+                    )
+                    and not result.startswith(
+                        "Bing 没有返回可用的文字答案"
+                    )
+                ):
+                    return result
+
+                safe_print(
+                    "⚠️ Azure Bing 未返回有效结果，"
+                    "开始使用备用搜索。"
+                )
+
+            except Exception as exc:
+                safe_print(
+                    "⚠️ Azure Bing 调用失败，"
+                    f"开始使用备用搜索：{exc}"
+                )
+
+        # -------------------------------------------------
+        # 使用 Bocha / SerpAPI 备用搜索
+        # -------------------------------------------------
+
+        return multi_web_search.invoke(
+            {
+                "query": query
+            }
+        )
+
+    return web_search
+# =========================================================
+# 综合备用搜索工具
+# =========================================================
+
+@tool
+def multi_web_search(query: str) -> str:
+    """
+    使用 SerpAPI 和 Bocha 进行备用搜索。
+
+    搜索顺序：
+
+    1. Bocha
+    2. SerpAPI
+
+    如果第一个搜索引擎失败，则自动尝试下一个。
+    """
+
+    if not query or not query.strip():
+        return "搜索关键词不能为空。"
+
+    query = query.strip()
+
+    engines = []
+
+    # 中文搜索优先使用 Bocha
+    if os.getenv("BOCHA_API_KEY"):
+        engines.append(
+            ("Bocha", search_bocha)
+        )
+
+    if os.getenv("SERPAPI_API_KEY"):
+        engines.append(
+            ("SerpAPI", search_serpapi)
+        )
+
+    if not engines:
+        return (
+            "未配置备用搜索引擎。\n"
+            "请至少配置以下一个环境变量：\n"
+            "- BOCHA_API_KEY\n"
+            "- SERPAPI_API_KEY"
+        )
+
+    errors = []
+
+    for engine_name, search_function in engines:
+        try:
+            result = search_function(query)
+
+            if result is None:
+                errors.append(
+                    f"{engine_name}: 未配置或未返回结果"
+                )
+                continue
+
+            result = str(result).strip()
+
+            # 这些内容代表搜索失败
+            if (
+                not result
+                or result.startswith("[")
+                or result == "未找到相关结果。"
+            ):
+                errors.append(
+                    f"{engine_name}: {result or '无结果'}"
+                )
+                continue
+
+            return (
+                f"【{engine_name} 搜索结果】\n\n"
+                f"{result}"
+            )
+
+        except Exception as exc:
+            errors.append(
+                f"{engine_name}: {exc}"
+            )
+
+    return (
+        "所有备用搜索引擎均未返回有效结果。\n"
+        + "\n".join(errors)
+    )
+
+
+
+
+def run_langchain_agent(agent, user_question: str):
+    """
+    执行严格经典 ReAct Agent。
+    """
+
+    result = agent.invoke(
+        {
+            "input": user_question,
+        }
+    )
+
+    final_answer = result.get(
+        "output",
+        "没有返回结果。",
+    )
+
+    final_answer = str(
+        final_answer
+    ).strip()
+
+    safe_print("\n助手：")
+    safe_print(final_answer)
+
+    return final_answer
+
+
+
+# =========================================================
+# 主程序
+# =========================================================
+
+def main():
+    # 确保标准输出可用
+    if sys.stdout is None or sys.stdout.closed:
+        sys.stdout = sys.__stdout__
+
+    load_dotenv("config.env")
+
+    try:
+
+        agent = create_langchain_agent()
+
+        safe_print("")
+        safe_print("=" * 60)
+        safe_print("中文 Bing Grounding 搜索助手已启动")
+        safe_print("输入 quit、exit、q 或 退出结束程序")
+        safe_print("=" * 60)
+
+        
+
+        
+
+        while True:
+            try:
+                user_question = input(
+                    "\n请输入问题："
+                ).strip()
+
+            except KeyboardInterrupt:
+                safe_print("\n程序已退出。")
+                break
+
+            except EOFError:
+                safe_print("\n程序已退出。")
+                break
+
+            if not user_question:
+                safe_print("请输入有效的问题。")
+                continue
+
+            if user_question.lower() in {
+                "quit",
+                "exit",
+                "q",
+                "退出",
+                "结束",
+            }:
+                safe_print("程序已退出。")
+                break
+
+            try:
+                run_langchain_agent(
+                    agent,
+                    user_question,
+                )
+
+            except Exception as exc:
+                safe_print(
+                    f"LangChain Agent 执行失败：{exc}"
+                )
+
+    except Exception as exc:
+        safe_print(
+            f"程序启动失败：{exc}"
+        )
+
+
+# =========================================================
+# 程序入口
+# =========================================================
+
+if __name__ == "__main__":
+    main()
+
