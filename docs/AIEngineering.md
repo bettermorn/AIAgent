@@ -1,4 +1,4 @@
-# 总体关系
+# PE、CE、HE和LE
 
 ## 演进顺序
 
@@ -17,7 +17,7 @@ timeline
                   : 稳定、可控、可评估、可持续运行
 ```
 
-
+## 四者的总体关系
 
 ```mermaid
 flowchart TB
@@ -68,7 +68,7 @@ flowchart TB
 
 
 
-
+## 核心区别
 
 ```mermaid
 mindmap
@@ -103,10 +103,11 @@ mindmap
       修正
       停止条件
 ```
-> **Prompt Engineering 解决“怎么告诉模型”，Context Engineering 解决“给模型看什么”，Harness Engineering 解决“如何让模型安全可靠地工作”，Loop Engineering 解决“如何让模型通过多轮反馈把复杂任务真正做完”。**
+
+**Prompt Engineering 解决“怎么告诉模型”，Context Engineering 解决“给模型看什么”，Harness Engineering 解决“如何让模型安全可靠地工作”，Loop Engineering 解决“如何让模型通过多轮反馈把复杂任务真正做完”。**
 
 
-
+## 四者在一个完整 AI Agent 中如何协同
 ```mermaid
 flowchart TB
     U["用户目标"]
@@ -181,6 +182,8 @@ flowchart TB
 
 # PE Prompt Engineering
 
+## 完整的Prompt
+
 ```mermaid
 flowchart LR
     R["角色
@@ -207,6 +210,28 @@ flowchart LR
     M --> O["输出"]
 ```
 
+## 2. Prompt Engineering 的作用边界
+
+Prompt 可以改善：
+
+- 任务理解
+- 输出格式
+- 语气和风格
+- 角色定位
+- 推理步骤的组织方式
+- 对异常情况的处理说明
+- 工具调用规则
+
+但 Prompt 不能彻底解决：
+
+- 缺少事实资料
+- 模型没有访问数据库的能力
+- 工具权限不合理
+- 上下文过长或污染
+- 任务本身缺少验证机制
+- 模型输出无法被系统检查
+
+因此，复杂 AI 系统不能只依赖 Prompt。
 
 
 
@@ -254,6 +279,17 @@ flowchart LR
 
     A --> B --> C --> D --> E --> F --> G
 ```
+
+Context Engineering 负责：
+
+- 从知识库中检索哪些文档
+- 是否过滤掉过期文档
+- 是否只保留用户有权限访问的资料
+- 如何把长文档切片
+- 如何给检索结果排序
+- 是否压缩历史对话
+- 是否保留上一步工具调用结果
+- 如何避免把无关资料塞给模型
 
 
 
@@ -313,11 +349,22 @@ flowchart LR
     E --> V --> O
 ```
 
+负责：
 
+- 给模型提供工具
+- 约束模型能做什么
+- 控制模型如何调用工具
+- 管理权限
+- 保存状态
+- 验证输出
+- 处理异常
+- 限制成本和执行时间
+- 监控运行过程
+- 必要时请求人工确认
 
 
 # LE Loop Engineering
-
+如何设计模型与环境之间的反复交互，使模型能够逐步完成复杂任务，而不是只生成一次答案。
 
 ```mermaid
 flowchart LR
@@ -403,4 +450,67 @@ flowchart TB
 - 失败后恢复成功率
 - 人工介入比例
 - 自动停止准确率
+
+# 一个具体例子：AI 编程助手
+## Prompt Engineering
+
+告诉模型：
+
+```text
+你是一名资深 Python 工程师。
+请修改代码，并说明修改原因。
+输出必须包含：
+1. 修改后的代码
+2. 测试方法
+3. 可能的风险
+```
+
+## Context Engineering
+
+为模型提供：
+
+- 当前项目目录结构
+- 相关源代码
+- 测试代码
+- 依赖文件
+- Git 历史
+- 编码规范
+- 当前报错日志
+- 用户拥有的文件权限
+
+## Harness Engineering
+
+为模型提供：
+
+- 文件读取工具
+- 代码编辑工具
+- 测试执行工具
+- Git 工具
+- 沙箱环境
+- 文件修改权限
+- 命令执行白名单
+- 修改前后的 Diff
+- 代码安全检查
+
+## Loop Engineering
+
+执行流程：
+
+```mermaid
+flowchart LR
+    A["理解需求"]
+    B["检查代码"]
+    C["制定修改计划"]
+    D["修改代码"]
+    E["运行测试"]
+    F["分析失败原因"]
+    G["提交 Diff"]
+    H["请求用户确认"]
+
+    A --> B --> C --> D --> E
+    E -->|"测试失败"| F --> C
+    E -->|"测试通过"| G --> H
+```
+
+这个系统的能力并不是由某一个 Prompt 单独产生的，而是四类工程共同作用的结果。
 
