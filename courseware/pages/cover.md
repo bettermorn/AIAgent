@@ -1,5 +1,6 @@
 ---
 theme: default
+class: text-center
 title: AI赋能大学教学与科研
 info: 面向大学教师的 Workbuddy 等 AI 工具应用培训
 author: 高等教育数字化教学培训
@@ -21,9 +22,7 @@ fonts:
 
 面向大学教师的实践培训
 
-
 60分钟视频课程 5部分
-
 
 教学发展中心 / 教师发展培训
 
