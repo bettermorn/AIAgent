@@ -1,4 +1,8 @@
 ---
+layout: section
+class: text-center
+background: '#1e5f3a'
+---
 
 # 第三部分
 
