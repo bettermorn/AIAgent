@@ -1,0 +1,16 @@
+{
+  "name": "AI4Edu",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "slidev build AI4Edu.md --base /CSEduResearch/courseware/",
+    "dev": "slidev AI4Edu.md --open",
+    "export": "slidev export AI4Edu.md"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.19.1",
+    "@slidev/theme-default": "latest",
+    "@slidev/theme-seriph": "latest",
+    "vue": "^3.5.33"
+  }
+}
