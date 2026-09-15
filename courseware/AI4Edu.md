@@ -1,4 +1,8 @@
 ---
+src: ./pages/cover.md
+---
+
+---
 src: ./pages/agenda.md
 ---
 
