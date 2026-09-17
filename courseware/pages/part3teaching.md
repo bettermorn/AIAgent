@@ -140,27 +140,80 @@ layout: default
 
 同一个知识点，可以让 AI 生成不同难度的材料,分层的目标是为学生提供不同的学习入口。
 
-## 基础层
 
-- 核心概念解释
-- 术语表
-- 典型例题
-- 逐步提示
+```mermaid
+flowchart LR
+    A["基础层
+核心概念解释 · 术语表
+典型例题 · 逐步提示"]
+    B["提升层
+综合案例 · 开放性问题
+多方案比较 · 证据评价"]
+    C["挑战层
+研究性任务 · 真实数据分析
+反例构造 · 项目设计"]
 
-## 提升层
+    A ==>|认知入门| B
+    B ==>|迁移应用| C
 
-- 综合案例
-- 开放性问题
-- 多方案比较
-- 证据评价
+    classDef base fill:#e3f2fd,stroke:#1976d2,color:#0d47a1
+    classDef adv  fill:#e8f5e9,stroke:#388e3c,color:#1b5e20
+    classDef chal fill:#fdecea,stroke:#d32f2f,color:#b71c1c
 
-## 挑战层
+    class A base
+    class B adv
+    class C chal
+```
 
-- 研究性任务
-- 真实数据分析
-- 反例构造
-- 项目设计
+---
+disabled: true
+---
+```mermaid
+flowchart TD
+    ROOT(["分层学习内容体系"])
 
+    subgraph L1["基础层"]
+        direction LR
+        A1["核心概念解释"]
+        A2["术语表"]
+        A3["典型例题"]
+        A4["逐步提示"]
+    end
+
+    subgraph L2["提升层"]
+        direction LR
+        B1["综合案例"]
+        B2["开放性问题"]
+        B3["多方案比较"]
+        B4["证据评价"]
+    end
+
+    subgraph L3["挑战层"]
+        direction LR
+        C1["研究性任务"]
+        C2["真实数据分析"]
+        C3["反例构造"]
+        C4["项目设计"]
+    end
+
+    ROOT --> L1
+    L1 ==>|掌握基础| L2
+    L2 ==>|迁移应用| L3
+
+    A1 --> A2 --> A3 --> A4
+    B1 --> B2 --> B3 --> B4
+    C1 --> C2 --> C3 --> C4
+
+    classDef base fill:#e3f2fd,stroke:#1976d2,stroke-width:1.5px,color:#0d47a1
+    classDef adv  fill:#e8f5e9,stroke:#388e3c,stroke-width:1.5px,color:#1b5e20
+    classDef chal fill:#fdecea,stroke:#d32f2f,stroke-width:1.5px,color:#b71c1c
+    classDef root fill:#37474f,stroke:#37474f,color:#ffffff,font-weight:bold
+
+    class A1,A2,A3,A4 base
+    class B1,B2,B3,B4 adv
+    class C1,C2,C3,C4 chal
+    class ROOT root
+```
 
 
 ---
