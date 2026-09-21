@@ -1,6 +1,6 @@
 以下方案默认：**高风险操作均采用“人在回路中”机制，Agent 可以生成建议、编排任务和提交申请，但涉及控制、工单关闭、成绩发布、科研任务提交等操作必须经过授权审批。**
 
----
+
 
 # 能源领域：
 
@@ -44,9 +44,24 @@
 - **时序模型与优化工具**：用于健康预测、产能预测、能效优化、质量预测和调度优化。
 - **数字孪生和仿真环境**：应优先用于高风险控制策略的验证，避免 Agent 直接试错真实生产系统。
 
----
 
-# 教育领域：
+
+# 教育领域应用
+
+下面以**“个性化学习辅导 Agent”**为例，该 Agent 属于**辅助决策型 Agent（Copilot）**，由学生使用，并在必要时由教师监督。
+
+| 设计内容 | 需要回答的问题 | 示例 |
+|---|---|---|
+| 用户对象 | 谁使用 Agent | 主要用户为高校或中学学生；教师可作为管理者和监督者，查看学生学习情况、调整课程知识库和审核学习建议 |
+| 业务任务 | Agent 具体完成什么 | 根据学生的学习目标、课程内容、历史作业和错题情况，回答知识问题，解释难点，生成分步骤提示，推荐练习题，并制定个性化学习计划；当发现学生持续学习困难时，提醒教师介入 |
+| 输入信息 | 用户提供哪些数据 | 课程教材、教学大纲、课件、知识点和题库；学生的年级、专业、学习目标、已学内容、作业结果、错题记录、测验成绩、学习进度和提问内容；必要时还可以输入学生上传的公式、图片、代码或实验数据 |
+| 输出结果 | 用户最终得到什么 | 对知识问题的解释；分步骤的解题提示，而不是直接给出答案；个性化练习题和学习路径；错题原因分析；阶段性学习报告；知识掌握度和薄弱环节分析；推荐给教师的辅导建议 |
+| 成功标准 | 怎样评价效果 | 学生问题解决率提高；知识点掌握度和测验成绩提升；错题重复率下降；学习计划完成率提高；学生对回答准确性、清晰度和有帮助程度的评价较高；教师用于备课和辅导的时间减少；重要回答能够提供教材或课程资料依据 |
+| 风险边界 | 哪些事情不能自动完成 | 不能替代教师做最终成绩评定、升留级或学业处分决定；不能在没有依据时编造知识、教材内容或参考文献；不能直接代替学生完成考试、作业或论文；不能未经授权访问或共享学生隐私数据；不能根据敏感信息对学生进行歧视性判断；涉及心理危机、医疗、法律或严重学业风险时，必须转交教师、家长或专业人员；自动生成的学习建议和评分结果必须允许人工复核和申诉 |
+
+
+
+
 
 教育领域面向高校，可围绕 **教学、学生培养、教务管理、课程质量、科研管理和科研协作** 建设 Agent，并与 LMS、教务系统、科研数据库、图书馆系统、实验平台和统一身份认证系统集成。
 
@@ -97,7 +112,7 @@
 - **推荐系统与知识追踪模型**：适合个性化学习、课程推荐和学生培养路径规划。
 - **Temporal 或其他工作流引擎**：适合科研任务、课程运营、审批、提醒和长期运行的流程。
 
----
+
 
 ## 统一的系统架构建议
 
@@ -136,6 +151,217 @@
    - 模型输出引用与可解释性
    - 版本管理、回滚和应急停止机制
 
+```mermaid
+flowchart TB
+
+%% =========================
+%% 交互层
+%% =========================
+subgraph L1["1. 交互层"]
+    direction LR
+
+    Web["Web 门户"]
+    IM["企业微信 / 钉钉 / 校园统一门户"]
+    Ops["运维大屏"]
+    Teaching["教学平台"]
+    Research["科研工作台"]
+end
+
+%% =========================
+%% Agent 编排层
+%% =========================
+subgraph L2["2. Agent 编排层"]
+    direction LR
+
+    LangGraph["LangGraph
+流程型、状态型、审批型任务"]
+    AutoGen["AutoGen
+多角色、多专家协作"]
+    Temporal["Temporal
+长流程、重试、补偿、任务恢复"]
+
+    Supervisor["Agent 协调与任务路由
+状态管理 / 任务拆解 / 结果汇总"]
+end
+
+%% =========================
+%% 工具调用层
+%% =========================
+subgraph L3["3. 工具调用层"]
+    direction LR
+
+    EnergySystems["能源业务系统
+SCADA / EMS / DCS
+CMMS / QMS / MES"]
+    EducationSystems["教育科研系统
+LMS / 教务系统
+科研管理系统"]
+    DataTools["数据与分析工具
+SQL / 时序数据库 / BI
+仿真平台 / 代码执行环境"]
+    WorkflowTools["业务执行工具
+工单 / 消息 / 审批
+电子签章系统"]
+end
+
+%% =========================
+%% 模型与知识层
+%% =========================
+subgraph L4["4. 模型与知识层"]
+    direction LR
+
+    LLM["私有化部署的大语言模型"]
+    RAG["RAG 检索增强生成
+向量数据库"]
+    KG["知识图谱"]
+    AIModels["专业 AI 模型
+时序预测 / 异常检测
+剩余寿命预测 / 推荐 / 优化"]
+    DigitalTwin["数字孪生与仿真模型"]
+end
+
+%% =========================
+%% 治理与安全层
+%% =========================
+subgraph L5["5. 治理与安全层"]
+    direction LR
+
+    IAM["统一身份认证
+RBAC / ABAC 权限"]
+    DataSecurity["数据分级分类
+数据脱敏 / 加密"]
+    ToolWhitelist["工具调用白名单"]
+    Approval["高风险操作审批"]
+    Audit["全链路日志
+操作审计"]
+    PromptDefense["Prompt 注入防护"]
+    Explainability["模型输出引用
+可解释性"]
+    Governance["版本管理 / 回滚
+应急停止机制"]
+end
+
+%% =========================
+%% 主流程连接
+%% =========================
+Web --> Supervisor
+IM --> Supervisor
+Ops --> Supervisor
+Teaching --> Supervisor
+Research --> Supervisor
+
+Supervisor --> LangGraph
+Supervisor --> AutoGen
+Supervisor --> Temporal
+
+LangGraph --> EnergySystems
+LangGraph --> EducationSystems
+LangGraph --> DataTools
+LangGraph --> WorkflowTools
+
+AutoGen --> DataTools
+AutoGen --> EnergySystems
+AutoGen --> EducationSystems
+AutoGen --> WorkflowTools
+
+Temporal --> WorkflowTools
+Temporal --> EnergySystems
+Temporal --> EducationSystems
+
+%% 工具调用层访问模型与知识层
+EnergySystems --> AIModels
+EducationSystems --> RAG
+DataTools --> AIModels
+DataTools --> DigitalTwin
+WorkflowTools --> AIModels
+
+%% 模型与知识层内部协作
+LLM <--> RAG
+LLM <--> KG
+LLM <--> AIModels
+AIModels <--> DigitalTwin
+RAG <--> KG
+
+%% Agent 编排层调用模型与知识
+LangGraph --> LLM
+LangGraph --> RAG
+LangGraph --> KG
+LangGraph --> AIModels
+LangGraph --> DigitalTwin
+
+AutoGen --> LLM
+AutoGen --> RAG
+AutoGen --> KG
+AutoGen --> AIModels
+
+Temporal --> LLM
+Temporal --> AIModels
+
+%% =========================
+%% 治理与安全横向控制
+%% =========================
+IAM -. 统一身份与权限控制 .-> Web
+IAM -. 统一身份与权限控制 .-> IM
+IAM -. 统一身份与权限控制 .-> LangGraph
+IAM -. 统一身份与权限控制 .-> AutoGen
+IAM -. 统一身份与权限控制 .-> Temporal
+IAM -. 统一身份与权限控制 .-> EnergySystems
+IAM -. 统一身份与权限控制 .-> EducationSystems
+
+DataSecurity -. 数据安全控制 .-> EnergySystems
+DataSecurity -. 数据安全控制 .-> EducationSystems
+DataSecurity -. 数据安全控制 .-> DataTools
+DataSecurity -. 数据安全控制 .-> RAG
+DataSecurity -. 数据安全控制 .-> AIModels
+
+ToolWhitelist -. 工具调用约束 .-> LangGraph
+ToolWhitelist -. 工具调用约束 .-> AutoGen
+ToolWhitelist -. 工具调用约束 .-> Temporal
+ToolWhitelist -. 工具调用约束 .-> WorkflowTools
+
+Approval -. 人工审批 .-> LangGraph
+Approval -. 人工审批 .-> Temporal
+Approval -. 高风险操作审批 .-> WorkflowTools
+Approval -. 控制参数调整审批 .-> EnergySystems
+Approval -. 教学内容发布审批 .-> EducationSystems
+
+Audit -. 审计记录 .-> Supervisor
+Audit -. 审计记录 .-> LangGraph
+Audit -. 审计记录 .-> AutoGen
+Audit -. 审计记录 .-> Temporal
+Audit -. 审计记录 .-> WorkflowTools
+Audit -. 审计记录 .-> Governance
+
+PromptDefense -. 输入安全防护 .-> LLM
+PromptDefense -. 输入安全防护 .-> RAG
+PromptDefense -. 输入安全防护 .-> AutoGen
+
+Explainability -. 结果解释与引用 .-> LLM
+Explainability -. 结果解释与引用 .-> AIModels
+Explainability -. 结果解释与引用 .-> RAG
+
+Governance -. 模型与流程治理 .-> LLM
+Governance -. 模型与流程治理 .-> AIModels
+Governance -. 回滚与应急停止 .-> LangGraph
+Governance -. 回滚与应急停止 .-> AutoGen
+Governance -. 回滚与应急停止 .-> Temporal
+
+%% =========================
+%% 样式
+%% =========================
+classDef interaction fill:#E3F2FD,stroke:#1565C0,stroke-width:1.5px,color:#0D47A1;
+classDef orchestration fill:#E8EAF6,stroke:#3949AB,stroke-width:1.5px,color:#1A237E;
+classDef tools fill:#E8F5E9,stroke:#2E7D32,stroke-width:1.5px,color:#1B5E20;
+classDef models fill:#FFF3E0,stroke:#EF6C00,stroke-width:1.5px,color:#E65100;
+classDef security fill:#FCE4EC,stroke:#C2185B,stroke-width:1.5px,color:#880E4F;
+
+class Web,IM,Ops,Teaching,Research interaction;
+class LangGraph,AutoGen,Temporal,Supervisor orchestration;
+class EnergySystems,EducationSystems,DataTools,WorkflowTools tools;
+class LLM,RAG,KG,AIModels,DigitalTwin models;
+class IAM,DataSecurity,ToolWhitelist,Approval,Audit,PromptDefense,Explainability,Governance security;
+```
+
 ## 自主程度建议
 
 - **被动响应型**：适合知识问答和查询，优先落地。
@@ -144,3 +370,5 @@
 - **半自主型**：适合持续监控和复杂流程，但必须设置阈值、审批和异常升级。
 - **全自主型**：能源领域应主要用于仿真、离线优化和低风险辅助系统；教育领域应主要用于虚拟实验、学习资源推荐和科研沙箱探索。
 - **多 Agent 协作系统**：适合 PHM-PEM-PQM 综合运营、智能教学团队和科研项目协作，但需要统一的权限、状态、通信和结果校验机制。
+
+  
