@@ -1,0 +1,4 @@
+# 简单的键值对配置（类似TOML的注释）
+model = "gpt-4o-mini"
+temperature = 0.2
+max_tokens = 700
