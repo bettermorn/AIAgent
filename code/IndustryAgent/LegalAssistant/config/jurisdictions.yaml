@@ -1,0 +1,9 @@
+```yaml
+defaults:
+  language: zh-cn  # 中文
+  timezone: UTC
+jurisdictions:
+  - code: EU
+    name: 欧盟
+  - code: US-CA
+    name: 美国加利福尼亚州
