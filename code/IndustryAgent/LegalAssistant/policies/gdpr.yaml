@@ -1,0 +1,21 @@
+id: gdpr_art_30_records
+title: 处理活动记录
+jurisdiction: EU
+effective_from: 2018-05-25
+controls:
+  - id: rpa_inventory
+    requirement: "根据GDPR第30条维护处理活动记录"
+    evidence: ["RPA注册表", "数据地图", "处理者合同"]
+    risk_weight: 0.7
+    references:
+      - law: "GDPR"
+        article: "第30条"
+        url: "https://gdpr.eu/article-30/"
+  - id: breach_notification
+    requirement: "除非不太可能产生风险，否则应在72小时内向监管机构通知个人数据泄露"
+    evidence: ["事件处理手册", "通知模板", "DPO批准"]
+    risk_weight: 0.9
+    references:
+      - law: "GDPR"
+        article: "第33条"
+        url: "https://gdpr.eu/article-33/"
