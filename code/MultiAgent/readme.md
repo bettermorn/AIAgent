@@ -1,3 +1,13 @@
+# 运行演示
+
+- IC-Talent-AutoGen.py [【无声演示】用多智能体框架AutoGen调研我国芯片人才](https://www.bilibili.com/video/BV1T2b66NEaz/）
+
+
+
+
+
+
+
 # AutoGen
 ## 配置文件 `config.env`
 由于当前环境不允许创建以 `.` 开头的文件，因此使用 `config.env`，内容如下：
