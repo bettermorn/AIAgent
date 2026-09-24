@@ -1,3 +1,12 @@
+# 程序运行演示
+
+- ReAct_Bing.py [【演示】用ReAct推理行动框架和Bing处理交互式决策任务](https://www.bilibili.com/video/BV1QNhV6NEGH/)
+
+- ReAct_Search.py [【实验演示】严格经典的ReAct中文智能助手](https://www.bilibili.com/video/BV1ddhG63EGG/)
+
+
+
+
 
 # 1. 什么是ReAct
 ReAct 全称是 Reasoning + Acting，即“推理 + 行动”循环。其工作流程为：
