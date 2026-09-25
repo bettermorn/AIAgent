@@ -1,3 +1,8 @@
+# 参考代码
+https://github.com/yh-yao/super_agent_book/tree/main/%E5%8C%BB%E7%96%97%E5%81%A5%E5%BA%B7%E6%99%BA%E8%83%BD%E4%BD%93
+
+
+
 # 健康智能助手 (合规优先的 RAG + LLM 系统)
 
 一个专注于**合规性、安全性和可解释性**的参考级**医疗健康助手**。
