@@ -1,0 +1,184 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "stem": "Choose the correct form: He ___ to school every day.",
+      "options": ["go", "goes", "going", "gone"],
+      "answer": 1,
+      "explain": "Present simple: he/she/it + verb-(e)s → goes.",
+      "cefr": "A1",
+      "tags": ["grammar:present-simple"],
+      "difficulty": 0.2
+    },
+    {
+      "id": "q2",
+      "stem": "Fill in a daily object in English that you use to write.",
+      "options": null,
+      "answer": "pen",
+      "explain": "Basic daily vocab: pen/pencil are acceptable; we expect 'pen' here.",
+      "cefr": "A1",
+      "tags": ["vocab:daily"],
+      "difficulty": 0.15
+    },
+    {
+      "id": "q3",
+      "stem": "Choose the correct past form: Yesterday I ___ to the park.",
+      "options": ["go", "goes", "went", "gone"],
+      "answer": 2,
+      "explain": "Past simple of 'go' is 'went'.",
+      "cefr": "A2",
+      "tags": ["grammar:past-simple"],
+      "difficulty": 0.4
+    },
+    {
+      "id": "q4",
+      "stem": "Choose the best word: I usually ___ up at 7 a.m.",
+      "options": ["wake", "wakes", "waking", "woke"],
+      "answer": 0,
+      "explain": "First person singular in present simple: 'I wake up'.",
+      "cefr": "A2",
+      "tags": ["vocab:routine","grammar:present-simple"],
+      "difficulty": 0.35
+    },
+    {
+      "id": "q5",
+      "stem": "Choose the correct form: She is ___ a book now.",
+      "options": ["read", "reads", "reading", "to read"],
+      "answer": 2,
+      "explain": "Present continuous: be + verb-ing → is reading.",
+      "cefr": "B1",
+      "tags": ["grammar:present-cont"],
+      "difficulty": 0.55
+    },
+    {
+      "id": "q6",
+      "stem": "Travel vocab: The place where airplanes take off is called an ____.",
+      "options": null,
+      "answer": "airport",
+      "explain": "Basic travel vocabulary.",
+      "cefr": "B1",
+      "tags": ["vocab:travel"],
+      "difficulty": 0.5
+    },
+    {
+      "id": "q7",
+      "stem": "Choose the correct form: If I ___ more time, I would have finished the project.",
+      "options": ["have", "had", "had had", "have had"],
+      "answer": 2,
+      "explain": "Third conditional: If + past perfect (had had), would have + past participle. It describes an unreal past situation and its imagined result.",
+      "cefr": "B2",
+      "tags": ["grammar:conditionals"],
+      "difficulty": 0.6
+    },
+    {
+      "id": "q8",
+      "stem": "Choose the correct form: By the time we arrived, the meeting ___.",
+      "options": ["already started", "has already started", "had already started", "was already starting"],
+      "answer": 2,
+      "explain": "Past perfect is used for an action completed before another past event: 'had already started'.",
+      "cefr": "B2",
+      "tags": ["grammar:past-perfect"],
+      "difficulty": 0.65
+    },
+    {
+      "id": "q9",
+      "stem": "Choose the best word to complete the sentence: The new policy has had a significant ___ on small businesses.",
+      "options": ["affect", "effect", "effort", "affectation"],
+      "answer": 1,
+      "explain": "'Effect' is the noun meaning 'an influence or result'; 'affect' is the verb. Common confusion at B2 level.",
+      "cefr": "B2",
+      "tags": ["vocab:business"],
+      "difficulty": 0.6
+    },
+    {
+      "id": "q10",
+      "stem": "Choose the correct form: She suggested ___ the deadline by a week.",
+      "options": ["to extend", "extending", "extend", "to extending"],
+      "answer": 1,
+      "explain": "'Suggest' is followed by a gerund (-ing form), not an infinitive: 'suggested extending'.",
+      "cefr": "B2",
+      "tags": ["grammar:verb-patterns"],
+      "difficulty": 0.55
+    },
+    {
+      "id": "q11",
+      "stem": "Choose the word closest in meaning to 'meticulous':",
+      "options": ["careless", "thorough", "hasty", "generous"],
+      "answer": 1,
+      "explain": "'Meticulous' means showing great attention to detail; the closest synonym is 'thorough'.",
+      "cefr": "B2",
+      "tags": ["vocab:academic"],
+      "difficulty": 0.65
+    },
+    {
+      "id": "q12",
+      "stem": "Academic writing: Choose the best word: The study's findings must be interpreted with ___ due to the small sample size.",
+      "options": null,
+      "answer": "caution",
+      "explain": "Academic collocation: 'interpret with caution' is a standard phrase in research writing.",
+      "cefr": "B2",
+      "tags": ["vocab:academic", "grammar:passive-voice"],
+      "difficulty": 0.6
+    },
+    {
+      "id": "q13",
+      "stem": "Choose the correct form: Rarely ___ such a talented young musician.",
+      "options": ["we have seen", "have we seen", "we saw", "did we saw"],
+      "answer": 1,
+      "explain": "When a negative adverbial like 'rarely' starts a sentence, the subject and auxiliary are inverted: 'Rarely have we seen...'.",
+      "cefr": "C1",
+      "tags": ["grammar:inversion"],
+      "difficulty": 0.8
+    },
+    {
+      "id": "q14",
+      "stem": "Choose the correct form: ___ the heavy rain, the match went ahead as planned.",
+      "options": ["Despite of", "Despite", "Although", "In spite"],
+      "answer": 1,
+      "explain": "'Despite' is a preposition directly followed by a noun phrase; 'despite of' and 'in spite' alone are incorrect. 'Although' would need a clause.",
+      "cefr": "C1",
+      "tags": ["grammar:concession"],
+      "difficulty": 0.75
+    },
+    {
+      "id": "q15",
+      "stem": "Choose the word closest in meaning to 'ubiquitous':",
+      "options": ["rare", "omnipresent", "obsolete", "ambiguous"],
+      "answer": 1,
+      "explain": "'Ubiquitous' means present everywhere at once; the synonym is 'omnipresent'.",
+      "cefr": "C1",
+      "tags": ["vocab:academic"],
+      "difficulty": 0.85
+    },
+    {
+      "id": "q16",
+      "stem": "Choose the best option to complete the formal sentence: Had the committee ___ the risks earlier, the dispute might have been averted.",
+      "options": ["foreseen", "forecast", "foresaw", "foresee"],
+      "answer": 0,
+      "explain": "Inverted third conditional: 'Had + subject + past participle' replaces 'If the committee had foreseen...'. 'Foreseen' is the past participle of 'foresee'.",
+      "cefr": "C1",
+      "tags": ["grammar:conditionals", "grammar:inversion"],
+      "difficulty": 0.9
+    },
+    {
+      "id": "q17",
+      "stem": "Choose the most natural collocation: The professor's argument was ___ flawed, which undermined her central thesis.",
+      "options": ["heavily", "grossly", "fatally", "bitterly"],
+      "answer": 2,
+      "explain": "'Fatally flawed' is the natural collocation meaning an error serious enough to invalidate the whole argument; it pairs with 'undermine'.",
+      "cefr": "C1",
+      "tags": ["vocab:academic", "grammar:collocation"],
+      "difficulty": 0.85
+    },
+    {
+      "id": "q18",
+      "stem": "C1 open question: Rewrite formally: 'The results are not clear, so we cannot say the drug works.' Use a nominalised academic style.",
+      "options": null,
+      "answer": "The ambiguity of the results precludes any definitive conclusion regarding the drug's efficacy.",
+      "explain": "Nominalisation ('the ambiguity of the results', 'conclusion', 'efficacy') is a hallmark of C1 academic register, replacing a simple cause-result clause.",
+      "cefr": "C1",
+      "tags": ["vocab:academic", "grammar:nominalisation"],
+      "difficulty": 0.95
+    }
+  ]
+}

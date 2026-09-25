@@ -1,1 +1,613 @@
-
+{
+  "students": {
+    "lihua": {
+      "user_id": "lihua",
+      "name": "李华",
+      "level": "A1",
+      "skills": {
+        "grammar:present-simple": {
+          "correct": 6,
+          "wrong": 1,
+          "mastery": 0.7247488000000002,
+          "difficulty_bias": 0.0225,
+          "next_review": "2026-09-30T20:56:52"
+        },
+        "grammar:verb-patterns": {
+          "correct": 1,
+          "wrong": 0,
+          "mastery": 0.2,
+          "difficulty_bias": -0.0025000000000000022,
+          "next_review": "2026-09-27T17:22:48"
+        },
+        "vocab:routine": {
+          "correct": 1,
+          "wrong": 0,
+          "mastery": 0.2,
+          "difficulty_bias": 0.0075000000000000015,
+          "next_review": "2026-09-27T17:23:02"
+        }
+      },
+      "history": [
+        {
+          "qid": "q1",
+          "ts": "2025-09-17T23:55:47",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.2,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_6318747b",
+          "ts": "2026-09-25T11:49:54",
+          "is_correct": false,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 0,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_ee0bde51",
+          "ts": "2026-09-25T11:56:08",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_3cbdeede",
+          "ts": "2026-09-25T11:56:14",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_38cfe06a",
+          "ts": "2026-09-25T12:34:04",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.5,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_4b354b2c",
+          "ts": "2026-09-25T12:34:28",
+          "is_correct": true,
+          "cefr": "B1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.5,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "q10",
+          "ts": "2026-09-25T12:34:48",
+          "is_correct": true,
+          "cefr": "B2",
+          "tags": [
+            "grammar:verb-patterns"
+          ],
+          "difficulty": 0.55,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "q4",
+          "ts": "2026-09-25T12:35:02",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "vocab:routine",
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.35,
+          "user_answer": 0,
+          "correct_answer": 0
+        }
+      ]
+    },
+    "s001": {
+      "user_id": "s001",
+      "name": "Alice",
+      "level": "A1",
+      "skills": {
+        "grammar:present-simple": {
+          "correct": 5,
+          "wrong": 3,
+          "mastery": 0.4773990400000001,
+          "difficulty_bias": -0.0075,
+          "next_review": "2025-09-20T02:21:34"
+        },
+        "vocab:routine": {
+          "correct": 1,
+          "wrong": 1,
+          "mastery": 0.2,
+          "difficulty_bias": -0.0075000000000000015,
+          "next_review": "2025-09-20T08:46:38"
+        },
+        "vocab:travel": {
+          "correct": 1,
+          "wrong": 0,
+          "mastery": 0.2,
+          "difficulty_bias": 0.0,
+          "next_review": "2025-09-20T08:46:56"
+        }
+      },
+      "history": [
+        {
+          "qid": "q1",
+          "ts": "2025-09-18T03:52:55",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.2,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_686d15c1",
+          "ts": "2025-09-18T03:56:38",
+          "is_correct": false,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 0,
+          "correct_answer": 1
+        },
+        {
+          "qid": "q1",
+          "ts": "2025-09-18T03:57:12",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.2,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_da9e44bd",
+          "ts": "2025-09-18T03:57:32",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "q4",
+          "ts": "2025-09-18T03:58:17",
+          "is_correct": false,
+          "cefr": "A2",
+          "tags": [
+            "vocab:routine",
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.35,
+          "user_answer": 1,
+          "correct_answer": 0
+        },
+        {
+          "qid": "generated_d01dc682",
+          "ts": "2025-09-18T03:58:33",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "q4",
+          "ts": "2025-09-18T03:58:38",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "vocab:routine",
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.35,
+          "user_answer": 0,
+          "correct_answer": 0
+        },
+        {
+          "qid": "q6",
+          "ts": "2025-09-18T03:58:56",
+          "is_correct": true,
+          "cefr": "B1",
+          "tags": [
+            "vocab:travel"
+          ],
+          "difficulty": 0.5,
+          "user_answer": "airport",
+          "correct_answer": "airport"
+        },
+        {
+          "qid": "q1",
+          "ts": "2025-09-18T03:59:13",
+          "is_correct": false,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.2,
+          "user_answer": 0,
+          "correct_answer": 1
+        }
+      ]
+    },
+    "lilei": {
+      "user_id": "lilei",
+      "name": "李雷",
+      "level": "A1",
+      "skills": {
+        "grammar:present-simple": {
+          "correct": 1,
+          "wrong": 0,
+          "mastery": 0.2,
+          "difficulty_bias": 0.015,
+          "next_review": "2026-09-27T16:03:27"
+        }
+      },
+      "history": [
+        {
+          "qid": "q1",
+          "ts": "2026-09-25T11:15:27",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.2,
+          "user_answer": 1,
+          "correct_answer": 1
+        }
+      ]
+    },
+    "xiaoming": {
+      "user_id": "xiaoming",
+      "name": "小明",
+      "level": "B1",
+      "skills": {
+        "grammar:present-simple": {
+          "correct": 9,
+          "wrong": 2,
+          "mastery": 0.8281174220800003,
+          "difficulty_bias": 0.057499999999999996,
+          "next_review": "2026-10-01T11:47:34"
+        },
+        "vocab:routine": {
+          "correct": 2,
+          "wrong": 4,
+          "mastery": 0.26553600000000005,
+          "difficulty_bias": -0.02749999999999999,
+          "next_review": "2026-09-28T02:51:30"
+        },
+        "vocab:business": {
+          "correct": 4,
+          "wrong": 0,
+          "mastery": 0.5904,
+          "difficulty_bias": 0.004999999999999999,
+          "next_review": "2026-09-30T01:34:40"
+        },
+        "grammar:present-cont": {
+          "correct": 3,
+          "wrong": 0,
+          "mastery": 0.48800000000000004,
+          "difficulty_bias": -5.204170427930421e-18,
+          "next_review": "2026-09-29T10:53:53"
+        }
+      },
+      "history": [
+        {
+          "qid": "q1",
+          "ts": "2026-09-25T11:35:15",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.2,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_fe4d3664",
+          "ts": "2026-09-25T11:35:57",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_b97fe8a8",
+          "ts": "2026-09-25T11:36:10",
+          "is_correct": false,
+          "cefr": "A2",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 0,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_e3c538d3",
+          "ts": "2026-09-25T11:41:56",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_1376188e",
+          "ts": "2026-09-25T11:42:20",
+          "is_correct": false,
+          "cefr": "A2",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.5,
+          "user_answer": 0,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_e378f21f",
+          "ts": "2026-09-25T11:42:31",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_1ddb4202",
+          "ts": "2026-09-25T11:56:35",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.5,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_54929f49",
+          "ts": "2026-09-25T11:56:43",
+          "is_correct": true,
+          "cefr": "B1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.5,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "q4",
+          "ts": "2026-09-25T11:56:54",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "vocab:routine",
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.35,
+          "user_answer": 0,
+          "correct_answer": 0
+        },
+        {
+          "qid": "generated_59efad52",
+          "ts": "2026-09-25T11:57:04",
+          "is_correct": false,
+          "cefr": "B2",
+          "tags": [
+            "vocab:routine"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 0
+        },
+        {
+          "qid": "q9",
+          "ts": "2026-09-25T12:31:52",
+          "is_correct": true,
+          "cefr": "B2",
+          "tags": [
+            "vocab:business"
+          ],
+          "difficulty": 0.6,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "q1",
+          "ts": "2026-09-25T12:32:23",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.2,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "q1",
+          "ts": "2026-09-25T12:32:38",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "grammar:present-simple"
+          ],
+          "difficulty": 0.2,
+          "user_answer": 1,
+          "correct_answer": 1
+        },
+        {
+          "qid": "generated_a086f5d6",
+          "ts": "2026-09-25T12:32:51",
+          "is_correct": true,
+          "cefr": "A1",
+          "tags": [
+            "vocab:business"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 0,
+          "correct_answer": 0
+        },
+        {
+          "qid": "generated_938c7b83",
+          "ts": "2026-09-25T12:33:21",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "vocab:business"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 0,
+          "correct_answer": 0
+        },
+        {
+          "qid": "generated_5d8ef027",
+          "ts": "2026-09-25T12:33:37",
+          "is_correct": true,
+          "cefr": "A2",
+          "tags": [
+            "vocab:business"
+          ],
+          "difficulty": 0.5,
+          "user_answer": 0,
+          "correct_answer": 0
+        },
+        {
+          "qid": "generated_227f62ba",
+          "ts": "2026-09-25T12:35:28",
+          "is_correct": false,
+          "cefr": "B1",
+          "tags": [
+            "vocab:routine"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 0
+        },
+        {
+          "qid": "q5",
+          "ts": "2026-09-25T12:35:49",
+          "is_correct": true,
+          "cefr": "B1",
+          "tags": [
+            "grammar:present-cont"
+          ],
+          "difficulty": 0.55,
+          "user_answer": 2,
+          "correct_answer": 2
+        },
+        {
+          "qid": "generated_e3d53ef3",
+          "ts": "2026-09-25T12:36:14",
+          "is_correct": false,
+          "cefr": "B1",
+          "tags": [
+            "vocab:routine"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 0
+        },
+        {
+          "qid": "q5",
+          "ts": "2026-09-25T12:36:31",
+          "is_correct": true,
+          "cefr": "B1",
+          "tags": [
+            "grammar:present-cont"
+          ],
+          "difficulty": 0.55,
+          "user_answer": 2,
+          "correct_answer": 2
+        },
+        {
+          "qid": "generated_c228705e",
+          "ts": "2026-09-25T12:36:45",
+          "is_correct": false,
+          "cefr": "B1",
+          "tags": [
+            "vocab:routine"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 0
+        },
+        {
+          "qid": "generated_b6b5a57e",
+          "ts": "2026-09-25T12:37:16",
+          "is_correct": true,
+          "cefr": "B1",
+          "tags": [
+            "vocab:routine"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 0,
+          "correct_answer": 0
+        },
+        {
+          "qid": "generated_7e12949a",
+          "ts": "2026-09-25T12:37:34",
+          "is_correct": true,
+          "cefr": "B1",
+          "tags": [
+            "grammar:present-cont"
+          ],
+          "difficulty": 0.4,
+          "user_answer": 1,
+          "correct_answer": 1
+        }
+      ]
+    }
+  }
+}
