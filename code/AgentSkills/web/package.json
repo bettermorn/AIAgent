@@ -1,0 +1,22 @@
+{
+  "name": "agentskills-web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agent Skills Web App - React frontend + Express backend calling DeepSeek",
+  "scripts": {
+    "start": "node server.js",
+    "client": "npm --prefix client run dev",
+    "client:install": "npm --prefix client install",
+    "client:build": "npm --prefix client run build",
+    "dev": "concurrently -n server,client -c blue,green \"npm run start\" \"npm run client\""
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
