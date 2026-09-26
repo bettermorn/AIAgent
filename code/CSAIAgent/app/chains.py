@@ -9,10 +9,11 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import (
     RunnableLambda,
-    RunnablePassthrough,
 )
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
+
+from app.config import RETRIEVER_K
 
 
 
@@ -124,8 +125,15 @@ def build_rag_chain(index_name: str):
         embedding=embeddings,
     )
 
+    # 使用 MMR 检索：在相关性的同时保证来源文件的多样性，
+    # k 覆盖知识库中的所有文件，fetch_k 为候选池大小
     retriever = vector_store.as_retriever(
-        search_kwargs={"k": 4}
+        search_type="mmr",
+        search_kwargs={
+            "k": RETRIEVER_K,
+            "fetch_k": max(RETRIEVER_K * 3, 30),
+            "lambda_mult": 0.6,
+        },
     )
 
     rag_prompt = ChatPromptTemplate.from_messages(
@@ -138,11 +146,12 @@ def build_rag_chain(index_name: str):
 请根据检索结果回答用户问题，并遵守以下规则：
 
 1. 只能根据检索结果回答。
-2. 每个关键结论都尽量引用对应出处。
-3. 使用 [1]、[2] 这样的编号引用来源。
-4. 如果检索结果没有足够依据，请明确说明无法确认。
-5. 当无法确认时，建议用户转人工或创建工单。
-6. 不要编造不存在的政策、流程、时间或数据。
+2. 综合检索结果中多个文件的信息作答，不要遗漏相关信息。
+3. 每个关键结论都尽量引用对应出处。
+4. 使用 [1]、[2] 这样的编号引用来源。
+5. 如果检索结果没有足够依据，请明确说明无法确认。
+6. 当无法确认时，建议用户转人工或创建工单。
+7. 不要编造不存在的政策、流程、时间或数据。
 """,
             ),
             (
@@ -152,7 +161,7 @@ def build_rag_chain(index_name: str):
         ]
     )
 
-    def fetch_context(payload: Dict[str, Any]) -> Dict[str, str]:
+    def fetch_context(payload: Dict[str, Any]) -> Dict[str, Any]:
         query = payload["query"]
 
         # 新版 LangChain 推荐使用 retriever.invoke()
@@ -170,22 +179,41 @@ def build_rag_chain(index_name: str):
             ]
         )
 
+        # 结构化来源信息，供前端展示引用出处
+        sources = [
+            {
+                "index": i + 1,
+                "source": doc.metadata.get("source"),
+                "chunk_id": doc.metadata.get("chunk_id"),
+                "snippet": doc.page_content[:120],
+            }
+            for i, doc in enumerate(docs)
+        ]
+
         return {
             "query": query,
             "contexts": contexts or "没有检索到相关内容。",
+            "sources": sources,
         }
 
     llm = build_deepseek_llm()
 
-    chain = (
-        RunnablePassthrough()
-        | RunnableLambda(fetch_context)
-        | rag_prompt
-        | llm
-        | StrOutputParser()
-    )
+    answer_chain = rag_prompt | llm | StrOutputParser()
 
-    return chain
+    def rag_with_sources(payload: Dict[str, Any]) -> Dict[str, Any]:
+        ctx = fetch_context(payload)
+        answer = answer_chain.invoke(
+            {
+                "query": ctx["query"],
+                "contexts": ctx["contexts"],
+            }
+        )
+        return {
+            "answer": answer,
+            "sources": ctx["sources"],
+        }
+
+    return RunnableLambda(rag_with_sources)
 
 
 def parse_intent_result(intent_text: str, labels) -> tuple[str, Dict[str, Any]]:
@@ -243,7 +271,7 @@ def build_router(index_name: str):
         )
 
         if intent == "FAQ":
-            answer = rag_chain.invoke(
+            result = rag_chain.invoke(
                 {
                     "query": query,
                 }
@@ -252,7 +280,8 @@ def build_router(index_name: str):
             return {
                 "intent": intent,
                 "slots": slots,
-                "answer": answer,
+                "answer": result["answer"],
+                "sources": result.get("sources", []),
                 "actions": [],
             }
 
@@ -271,7 +300,7 @@ def build_router(index_name: str):
             }
 
         # 兜底逻辑
-        answer = rag_chain.invoke(
+        result = rag_chain.invoke(
             {
                 "query": query,
             }
@@ -280,7 +309,8 @@ def build_router(index_name: str):
         return {
             "intent": "FAQ",
             "slots": slots,
-            "answer": answer,
+            "answer": result["answer"],
+            "sources": result.get("sources", []),
             "actions": [],
         }
 
