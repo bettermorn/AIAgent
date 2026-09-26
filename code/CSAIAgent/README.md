@@ -1,7 +1,9 @@
 # Helpdesk AI
 
-基于 LangChain + Pinecone + FastAPI + React 的企业客服智能体。
-支持 FAQ 问答、工单生成、投诉处理与多轮记忆，并提供现代化 Web 聊天界面。
+基于 LangChain + Pinecone + FastAPI + React 的企业客服智能体。支持 FAQ 问答、工单生成、投诉处理与多轮记忆，并提供Web 聊天界面。
+
+
+参考链接 https://github.com/yh-yao/super_agent_book/tree/main/RAG_%E6%99%BA%E8%83%BD%E5%AE%A2%E6%9C%8D%E4%B8%8E%E7%9F%A5%E8%AF%86%E9%97%AE%E7%AD%94
 
 ## 项目结构
 
