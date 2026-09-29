@@ -1,0 +1,7 @@
+openai
+requests
+ddgs>=9.0
+python-dotenv
+fastapi
+uvicorn[standard]
+pydantic
