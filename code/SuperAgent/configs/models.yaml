@@ -1,1 +1,8 @@
 
+llm:
+  small: {provider: deepseek, model: deepseek-chat}
+  large: {provider: deepseek, model: deepseek-chat}
+  reasoner: {provider: deepseek, model: deepseek-reasoner}
+  vision: {provider: deepseek, model: deepseek-chat}
+embed:
+  default: {provider: deepseek, model: text-embedding, dim: 1536}
