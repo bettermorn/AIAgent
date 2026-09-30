@@ -11,6 +11,11 @@
 - FastAPI 后端 + **React 前端 Web 应用**
 - 执行轨迹日志（`runs/trace_*.json`）与可视化
 
+## 参考代码
+
+https://github.com/yh-yao/super_agent_book/tree/main/%E8%B6%85%E7%BA%A7%E6%99%BA%E8%83%BD%E4%BD%93%E5%AE%9E%E6%88%98
+
+
 ## 架构
 
 ```
