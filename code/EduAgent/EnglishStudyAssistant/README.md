@@ -3,6 +3,10 @@
 https://github.com/yh-yao/super_agent_book/tree/main/%E4%B8%AA%E6%80%A7%E5%8C%96%E4%B8%8E%E8%AE%B0%E5%BF%86_%E6%95%99%E8%82%B2%E8%BE%85%E5%AF%BC
 
 
+# 程序演示视频
+
+[【无声演示】英语学习智能助手](https://www.bilibili.com/video/BV1f3h26gEEX/)
+
 
 # 英语学习智能助手 (自适应 + 记忆)
 
