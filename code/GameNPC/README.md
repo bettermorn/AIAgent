@@ -5,6 +5,13 @@
 前端使用 **React**（Vite 构建），后端使用 **FastAPI**，由 **DeepSeek** 模型驱动，配置统一存放在 `config.env` 中。
 
 
+
+程序运行演示
+
+[【无声演示】多角色游戏对话智能体](https://www.bilibili.com/video/BV1qXhd6AEu1/)
+
+
+
 ## 参考代码
 
 https://github.com/yh-yao/super_agent_book/tree/main/%E5%A4%9A%E8%A7%92%E8%89%B2%E6%B8%B8%E6%88%8F%E5%AF%B9%E8%AF%9D%E4%BD%93
