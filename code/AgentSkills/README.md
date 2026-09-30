@@ -1,3 +1,13 @@
+# 参考代码
+
+https://github.com/yh-yao/super_agent_book/tree/main/%E6%99%BA%E8%83%BD%E4%BD%93%E6%8A%80%E8%83%BDskills
+
+# 程序运行演示
+
+[【无声演示】智能体技能](https://www.bilibili.com/video/BV1JGhU67EB5/)
+
+
+
 # Agent Skills Demo（React Web 应用 · DeepSeek · SKILL.md）
 
 本项目包含两种使用方式：
