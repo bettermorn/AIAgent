@@ -1,8 +1,6 @@
 # Agent 协作平台（Google A2A SDK + DeepSeek + React）
 
-## 参考代码
 
-https://github.com/yh-yao/super_agent_book/tree/main/a2a_%E6%99%BA%E8%83%BD%E4%BD%93
 
 
 
@@ -18,6 +16,19 @@ https://github.com/yh-yao/super_agent_book/tree/main/a2a_%E6%99%BA%E8%83%BD%E4%B
 - ✅ 🤖 集成 **DeepSeek**（deepseek-v4-flash）提供智能能力
 - ✅ 🖥️ **React Web 应用**：Agent 状态监控、单 Agent 对话、多 Agent 协作管道可视化
 
+
+程序运行演示
+
+[【无声演示】A2A Agent协作平台](https://www.bilibili.com/video/BV1Mha86jEqa/)
+
+
+
+
+
+
+## 参考代码
+
+https://github.com/yh-yao/super_agent_book/tree/main/a2a_%E6%99%BA%E8%83%BD%E4%BD%93
 ---
 
 ## 🏗️ 系统架构
