@@ -1,0 +1,74 @@
+AI Agent 各层架构的常用技术选型
+====================
+
+一、接入层（Entry Layer）
+- Web 框架：FastAPI（Python 异步，推荐）、Flask、Django、Node.js Express/NestJS
+- 前端：React / Vue / Svelte；对话流场景可考虑 Vercel AI SDK 流式渲染
+- 实时通信：SSE（Server-Sent Events，流式输出首选）、WebSocket（双向）、WebRTC（语音）
+- 网关与接入：Nginx / Kong / APISIX / AWS API Gateway；认证用 JWT / OAuth2 / API Key
+- 多模态输入：
+  - 语音识别 ASR：Whisper、FunASR、讯飞
+  - 图像文字 OCR：PaddleOCR、Tesseract、多模态模型直接识别
+- 文件解析：PDF（PyMuPDF/pdfplumber）、Office（python-docx/openpyxl）、网页（trafilatura/Jina Reader）
+
+二、意图与路由层（Intent & Routing）
+- 意图识别：
+  - 轻量方案：关键词/规则匹配（本项目的 core/intent.py 即为演示版规则路由）
+  - 小模型分类器：BERT 微调、DeepSeek/GPT 小模型 + 结构化输出
+- 模型路由：
+  - 复杂度路由：token 数、任务类型 → 小模型 or 推理模型（deepseek-reasoner）
+  - 降级路由：主模型超时/限流自动切换备用模型（如 DeepSeek ↔ OpenAI 互备）
+- 配置管理：YAML 声明式路由表（configs/models.yaml 模式）、LiteLLM 统一网关
+
+三、编排层（Orchestration Layer）
+- 图编排：LangGraph（状态图 + 检查点 + HITL，生产推荐）
+- 多 Agent 对话：AutoGen（角色协商）、CrewAI（角色分工）
+- 工作流引擎：Temporal / Airflow（长周期、强一致性任务）
+- 轻量自研：asyncio 状态机 + 消息总线
+- 状态持久化：Redis（会话态）、PostgreSQL（审计态）、LangGraph Checkpointer（SQLite/Postgres/Redis）
+
+四、能力层（Agent Skills）
+- 工具调用（Function Calling）：
+  - 协议：OpenAI 兼容 tool_calls / MCP（Model Context Protocol，工具互操作新标准）
+  - 搜索：Tavily、SearXNG（自建）、Bing/Google API
+  - 代码执行沙箱：Docker 容器、Firecracker microVM、E2B、Jupyter Kernel
+  - 浏览器自动化：Playwright、Puppeteer
+- RAG 组件：
+  - 编排框架：LlamaIndex（RAG 专用，索引抽象丰富）、LangChain
+  - 向量数据库：FAISS（本地原型）、Chroma（轻量）、Milvus/Qdrant/Weaviate（生产分布式）、pgvector（复用 Postgres）
+  - 嵌入模型：BGE-M3（中文效果好）、text-embedding-3-small、Jina Embedding
+  - 重排序：BGE-reranker、Cohere Rerank、Jina Reranker
+- 记忆系统：
+  - 短期：消息列表 + 滑动窗口/摘要压缩（token 预算控制）
+  - 长期：Mem0、Zep、向量库 + 用户画像表；关系型数据用 Postgres
+  - 知识图谱：Neo4j（GraphRAG 场景）
+
+五、模型层（Model Layer）
+- 模型接入：
+  - DeepSeek（deepseek-chat 通用 / deepseek-reasoner 深度推理，OpenAI 兼容协议 + base_url 切换）
+  - OpenAI GPT 系列、Anthropic Claude、Qwen、GLM
+  - 本地部署：Ollama、vLLM（高吞吐推理）、llama.cpp（边缘设备）
+- 客户端封装：openai SDK（兼容 DeepSeek）、LiteLLM（多供应商统一代理）
+- 提示词管理：模板引擎（Jinja2）、版本化提示词库（Langfuse/PromptLayer）
+- 输出控制：JSON Schema 约束、Structured Output、温度分级（事实性任务低温，创意任务高温）
+
+六、安全与治理层（Safety & Governance）
+- 内容安全：OpenAI Moderation API、百度/阿里内容安全、Llama Guard、自建敏感词库（DFA 算法）
+- 注入防御：prompt 策略（分隔符 + 指令隔离）、Lakera Guard、Rebuff
+- 权限与认证：RBAC（role-based）、OPA（Open Policy Agent）策略引擎
+- 人工确认：LangGraph interrupt、审批工单（自建或对接企业 IM 审批流）
+- 审计追踪：OpenTelemetry、LangSmith、Langfuse（LLM 链路追踪）、本地 JSON 轨迹（本项目的 runs/trace_*.json 模式）
+
+七、基础设施层（Infrastructure）
+- 部署：Docker + Kubernetes、Serverless（AWS Lambda/Cloud Run）
+- 异步任务：Celery + Redis/RabbitMQ、Temporal
+- 缓存：Redis（响应缓存、会话缓存、语义缓存 GPTCache）
+- 可观测：Prometheus + Grafana（指标）、ELK/Loki（日志）、Langfuse/LangSmith（LLM Trace）
+- 成本控制：Token 计量（tiktoken）、按租户配额、预算告警
+- 评测流水线：RAGAS（RAG 质量）、DeepEval、自建回归评测集
+
+八、选型决策建议
+1. 原型阶段：FastAPI + LangGraph + FAISS/Chroma + DeepSeek + React，全部开源自建，一两天可跑通
+2. 生产单机：Postgres(pgvector) + Redis + Milvus + vLLM 本地模型，数据不出域
+3. 生产云原生：K8s + 多模型网关(LiteLLM) + Langfuse 可观测 + 全链路审计
+4. 核心原则：优先 OpenAI 兼容协议与 MCP 等开放标准，保持模型/向量库/编排框架可替换，避免深度绑定单一供应商
