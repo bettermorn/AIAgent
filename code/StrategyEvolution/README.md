@@ -8,6 +8,10 @@
 - 🖥️ **React Web 界面**：实时流式过程输出（SSE）、多维评分可视化、报告与搜索记录展示
 - 📟 同时保留命令行（CLI）运行方式
 
+## 参考代码
+
+https://github.com/yh-yao/super_agent_book/tree/main/%E8%87%AA%E6%88%91%E6%BC%94%E8%BF%9B_%E5%95%86%E4%B8%9A%E6%8A%A5%E5%91%8A
+
 ## 📁 项目结构
 
 ```
