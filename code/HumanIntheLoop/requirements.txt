@@ -1,0 +1,27 @@
+# ============================================
+# Lesson 5: Human in the Loop - Python 依赖
+# ============================================
+# 本文件用于安装根目录 `Lesson_5_Student.py` 原版 Python 教程所需的依赖。
+# Web 应用（React + Node.js + PostgreSQL）请使用 backend/ 和 frontend/ 下的 package.json。
+
+# 基础环境
+python-dotenv>=1.0.0
+
+# LangGraph 核心
+langgraph>=0.2.0,<0.4.0
+langgraph-checkpoint-sqlite>=2.0.0
+
+# LangChain 相关
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langchain-community>=0.3.0
+
+# Tavily 搜索工具
+tavily-python>=0.5.0
+
+# Jupyter / 交互式运行
+ipykernel>=6.29.0
+ipython>=8.24.0
+
+# 类型检查（可选）
+typing-extensions>=4.12.0
