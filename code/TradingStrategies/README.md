@@ -8,12 +8,19 @@
 
 > LLM 能力统一通过 `DEEPSEEK_API_KEY` 调用 DeepSeek 模型（OpenAI 兼容接口），配置文件为项目根目录的 `config.env`。
 
----
+
+
+程序运行演示
+
+[【无声演示】金融交易策略助手](https://www.bilibili.com/video/BV1nHhR6vEqR/)
+
 
 
 ## 参考代码
 
 https://github.com/yh-yao/super_agent_book/tree/main/%E5%AE%9E%E6%97%B6%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93_%E9%87%91%E8%9E%8D%E5%86%B3%E7%AD%96
+
+
 
 ## 快速开始
 
