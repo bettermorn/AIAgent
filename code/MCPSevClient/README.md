@@ -7,6 +7,12 @@
 - 一个 **React + FastAPI Web 应用**，通过 `config.env` 中的 `DEEPSEEK_API_KEY` 调用 DeepSeek 模型
 - 不含硬编码的密钥；所有配置通过 `config.env` 或环境变量提供
 
+程序运行演示
+
+[【无声演示】MCP服务端和客户端](https://www.bilibili.com/video/BV17eah6AEU5/)
+
+
+
 ## 参考代码
 https://github.com/yh-yao/super_agent_book/tree/main/mcp%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%B8%8E%E5%AE%A2%E6%88%B7%E7%AB%AF
 
