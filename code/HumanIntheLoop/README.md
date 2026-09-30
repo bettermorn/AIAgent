@@ -2,7 +2,12 @@
 
 > 一个使用 **React + Node.js (Express) + PostgreSQL** 实现的「可人工介入」Agent 演示项目。
 > 完全复刻 LangGraph 中 `interrupt_before` / 修改状态 / 时间回溯的思想，但底层用 **DeepSeek API** 替代 OpenAI，
-> 状态持久化使用 **PostgreSQL (PostGreP)**，前端是现代化的 **React 18** 单页应用。
+> 状态持久化使用 **PostgreSQL (PostGreP)**，前端是**React 18** 单页应用。
+
+
+程序运行演示
+
+[【无声演示】人在回路的AIAgent](https://www.bilibili.com/video/BV1MLaH6sE6r/)
 
 ---
 
