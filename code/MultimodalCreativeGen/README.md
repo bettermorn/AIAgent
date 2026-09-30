@@ -8,6 +8,11 @@
 | ✅ 校对 Agent | 润色优化文案 | DeepSeek `deepseek-chat` |
 | 🎨 设计 Agent | 生成 SVG 广告海报 | DeepSeek `deepseek-chat` |
 
+
+程序运行演示
+
+[【无声演示】多模态创意生成智能体](https://www.bilibili.com/video/BV1DPho6REU5/)
+
 ## 参考代码
 https://github.com/yh-yao/super_agent_book/tree/main/%E5%A4%9A%E6%A8%A1%E6%80%81%E5%88%9B%E6%84%8F%E7%94%9F%E6%88%90
 
