@@ -1,5 +1,11 @@
 # Agent 协作平台（Google A2A SDK + DeepSeek + React）
 
+## 参考代码
+
+https://github.com/yh-yao/super_agent_book/tree/main/a2a_%E6%99%BA%E8%83%BD%E4%BD%93
+
+
+
 ## 🎯 概述
 
 本项目展示如何使用 **Google 官方 A2A Python SDK** 构建标准化的多 Agent 协作系统，并提供一个 **React Web 应用** 作为可视化交互界面。
