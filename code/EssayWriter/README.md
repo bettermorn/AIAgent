@@ -2,9 +2,18 @@
 
 > 使用 React + FastAPI + LangGraph + DeepSeek 构建的「多 Agent 作文写作」系统，支持**大纲规划 → 资料检索 → 草稿撰写 → 教师批改 → 修订迭代**完整流程。
 
+程序运行演示
+
+[【无声演示】文章写作助手](https://www.bilibili.com/video/BV1GQaW6BEYW/)
+
 ![architecture](https://img.shields.io/badge/stack-React%20%7C%20FastAPI%20%7C%20LangGraph%20%7C%20DeepSeek-6366f1?style=flat-square)
 
+
+
+
 ---
+
+
 
 ## 🌟 功能特性
 
