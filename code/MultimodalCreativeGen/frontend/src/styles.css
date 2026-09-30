@@ -1,0 +1,258 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #0f1226;
+  --card: #ffffff;
+  --primary: #6c5ce7;
+  --primary-2: #00cec9;
+  --text: #2d3436;
+  --muted: #7a7f9a;
+  --radius: 16px;
+}
+
+body {
+  font-family:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui,
+    -apple-system, sans-serif;
+  color: var(--text);
+  background: linear-gradient(135deg, #0f1226 0%, #1e1b4b 55%, #312e81 100%);
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero {
+  text-align: center;
+  padding: 48px 20px 32px;
+  color: #fff;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
+  letter-spacing: 1px;
+  background: linear-gradient(90deg, #a29bfe, #00cec9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.container {
+  width: min(1080px, 92vw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding-bottom: 48px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.card h2 {
+  font-size: 1.05rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+}
+
+/* ---------- 表单 ---------- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form input {
+  padding: 12px 14px;
+  border: 2px solid #e6e8f0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.form input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form button {
+  margin-top: 8px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.form button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+.form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- 步骤 ---------- */
+.steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f6f7fb;
+  border: 2px solid transparent;
+  transition: all 0.25s;
+}
+
+.step-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: #e6e8f0;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.step.pending {
+  opacity: 0.6;
+}
+
+.step.running {
+  border-color: var(--primary);
+  background: #f3f1ff;
+}
+
+.step.running .step-icon {
+  background: var(--primary);
+  color: #fff;
+  animation: spin 1.2s linear infinite;
+}
+
+.step.done {
+  background: #eefbf5;
+}
+
+.step.done .step-icon {
+  background: #00b894;
+  color: #fff;
+}
+
+.step-label {
+  font-weight: 700;
+}
+
+.step-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- 结果 ---------- */
+.result-card,
+.poster-card {
+  grid-column: 1 / -1;
+}
+
+.copy {
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 18px 20px;
+  border-left: 5px solid #dcdde1;
+  background: #f6f7fb;
+  border-radius: 8px;
+}
+
+.copy.final {
+  border-left-color: #00b894;
+  background: #eefbf5;
+  font-size: 1.6rem;
+}
+
+.highlight {
+  border: 2px solid #00b894;
+}
+
+.error {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fdecea;
+  color: #c0392b;
+  font-size: 0.95rem;
+}
+
+.poster {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f6f7fb;
+  display: flex;
+  justify-content: center;
+}
+
+.poster svg {
+  width: 100%;
+  height: auto;
+  max-width: 520px;
+  display: block;
+}
+
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 760px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}
