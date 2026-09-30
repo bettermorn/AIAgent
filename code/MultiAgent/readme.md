@@ -1,6 +1,8 @@
 # 运行演示
 
-- IC-Talent-AutoGen.py [【无声演示】用多智能体框架AutoGen调研我国芯片人才](https://www.bilibili.com/video/BV1T2b66NEaz/）
+- IC-Talent-AutoGen.py   [【无声演示】用多智能体框架AutoGen调研我国芯片人才](https://www.bilibili.com/video/BV1T2b66NEaz/)
+
+
 
 
 
