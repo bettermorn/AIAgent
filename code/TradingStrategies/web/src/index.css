@@ -1,0 +1,386 @@
+:root {
+  --bg: #12151d;
+  --card: #1c2230;
+  --border: #333b4d;
+  --text: #e7eaf2;
+  --muted: #8b93a7;
+  --primary: #4f8cff;
+  --green: #2fbf71;
+  --red: #e5484d;
+  --yellow: #f5a623;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+.app {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.config-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.dot.ok {
+  background: var(--green);
+}
+.dot.bad {
+  background: var(--red);
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.tabs button {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 10px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.15s ease;
+}
+
+.tabs button.active {
+  color: var(--text);
+  border-color: var(--primary);
+  background: rgba(79, 140, 255, 0.15);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field.wide {
+  grid-column: 1 / -1;
+}
+
+.field label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+input,
+select,
+textarea {
+  background: #12151d;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease;
+  font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+}
+
+button.primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 24px;
+  font-size: 15px;
+  cursor: pointer;
+  height: 42px;
+  transition: opacity 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* 等待中旋转图标 */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner.large {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+  border-color: rgba(79, 140, 255, 0.25);
+  border-top-color: var(--primary);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--muted);
+  font-size: 15px;
+  padding: 48px 20px;
+}
+
+button.primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.alert.error {
+  background: rgba(229, 72, 77, 0.12);
+  border: 1px solid rgba(229, 72, 77, 0.4);
+  color: #ff8c8f;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.metric {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric .label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.metric .value {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.value.up {
+  color: var(--green);
+}
+.value.down {
+  color: var(--red);
+}
+
+.table-wrap {
+  max-height: 420px;
+  overflow: auto;
+  border-radius: 10px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th,
+td {
+  text-align: right;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  background: var(--card);
+}
+
+.tag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tag.buy {
+  background: rgba(47, 191, 113, 0.18);
+  color: var(--green);
+}
+.tag.sell {
+  background: rgba(229, 72, 77, 0.18);
+  color: var(--red);
+}
+.tag.hold {
+  background: rgba(245, 166, 35, 0.18);
+  color: var(--yellow);
+}
+
+.rsi-low {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.rsi-high {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.decision-card .decision-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.decision {
+  font-size: 32px;
+  font-weight: 700;
+  padding: 4px 22px;
+  border-radius: 12px;
+}
+
+.decision.buy {
+  color: var(--green);
+  background: rgba(47, 191, 113, 0.14);
+}
+.decision.sell {
+  color: var(--red);
+  background: rgba(229, 72, 77, 0.14);
+}
+.decision.hold {
+  color: var(--yellow);
+  background: rgba(245, 166, 35, 0.14);
+}
+
+.model-tag {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.reason {
+  color: var(--text);
+  background: #12151d;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+
+.indicators {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.indicators > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #12151d;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.indicators .label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.footer {
+  margin-top: 32px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
