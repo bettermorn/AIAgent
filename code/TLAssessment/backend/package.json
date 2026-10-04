@@ -1,0 +1,20 @@
+{
+  "name": "tl-assessment-backend",
+  "version": "1.0.0",
+  "description": "技术领导力评测智能体 - 后端服务 (Node.js + Express + PostgreSQL + DeepSeek + SerpAPI/Bocha)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  }
+}
