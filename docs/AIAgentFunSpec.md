@@ -265,9 +265,9 @@ classDiagram
 
 ## 参考链接
 
-[1] AI Agent - hong6234 - 博客园：https://www.cnblogs.com/hong6234/p/19701489
-[2] AI Agent - 福寿螺888 - 博客园：https://www.cnblogs.com/Python888/p/19403414
-[3] 解析AI Agent，原理、应用与代码示例 - CSDN：https://m.blog.csdn.net/Java_ZZZZZ/article/details/146115548
-[4] 互联网行业 AI Agent 智能体产品方案与技术实现 - CSDN博客：https://blog.csdn.net/xiaofeng10330111/article/details/163677123
-[5] 什么是 AI Agent？原理、应用与代码示例 - CSDN：https://m.blog.csdn.net/luwei42768/article/details/145232598
-[6] 大模型智能体Ai Agent原理解析 - boardmix博思白板：https://boardmix.cn/community/fpwEJ7uKo_4mmW-7ptiQWw/
+- [1] AI Agent - hong6234 - 博客园：https://www.cnblogs.com/hong6234/p/19701489
+- [2] AI Agent - 福寿螺888 - 博客园：https://www.cnblogs.com/Python888/p/19403414
+- [3] 解析AI Agent，原理、应用与代码示例 - CSDN：https://m.blog.csdn.net/Java_ZZZZZ/article/details/146115548
+- [4] 互联网行业 AI Agent 智能体产品方案与技术实现 - CSDN博客：https://blog.csdn.net/xiaofeng10330111/article/details/163677123
+- [5] 什么是 AI Agent？原理、应用与代码示例 - CSDN：https://m.blog.csdn.net/luwei42768/article/details/145232598
+- [6] 大模型智能体Ai Agent原理解析 - boardmix博思白板：https://boardmix.cn/community/fpwEJ7uKo_4mmW-7ptiQWw/
