@@ -33,7 +33,7 @@ AI 最适合处理：**高频、重复、结构化、可检查的工作。**
 
 # AI 在教师工作中的角色
 
-```mermaid
+```mermaid{scale: 0.6}
 mindmap
   root((教师与AI协同))
     教学设计
@@ -53,18 +53,15 @@ mindmap
       数据整理
       汇报材料
 ```
-
-
-
 AI 是“副驾驶”，不是“自动驾驶”。
 AI 是“助手”，不能代替“教师”。
 
 
-
 ---
-layout:two-cols
+layout: two-cols
 ---
 
+::left::
 ## 适合交给 AI 的任务
 
 - 提供初稿、提纲和备选方案
