@@ -33,7 +33,7 @@ AI 最适合处理：**高频、重复、结构化、可检查的工作。**
 
 # AI 在教师工作中的角色
 
-```mermaid{scale: 0.6}
+```mermaid{scale: 0.8}
 mindmap
   root((教师与AI协同))
     教学设计
