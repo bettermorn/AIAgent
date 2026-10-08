@@ -238,250 +238,148 @@ flowchart TD
 
 
 ---
-theme: default
-title: 经济数学模型分析 · 作业任务
-info: |
-  高校经济学类课程 · 作业任务卡（单页）
-  2—3 人小组 ｜ 4 周 ｜ 占总评 30%
-canvasWidth: 1280
-aspectRatio: '16/9'
-mdc: true
-fonts:
-  sans: PingFang SC, Hiragino Sans GB, Microsoft YaHei, Source Han Sans SC
-  provider: none
+class: text-sm
 ---
 
-<div class="tc">
+# 经济数学模型分析 · 作业任务
 
-<div class="tc-top">
-  <div class="tc-top-title">经济数学模型分析 · 作业任务</div>
-  <div class="tc-top-meta">2—3 人小组　｜　4 周　｜　占总评 30%</div>
-</div>
+**2—3 人小组｜4 周｜占总评 30%**
 
-<div class="tc-task">
-  <span class="tc-task-label">任务</span>
-  <span>选一个真实或拟真的经济现象，用经济数学模型回答它，并说清结论在什么条件下成立。</span>
-</div>
+## 任务
 
-<div class="tc-block">
+选一个真实或拟真的经济现象，用经济数学模型回答它，并说明结论在什么条件下成立。
 
-<div class="tc-cap">建模闭环 · 六项成果缺一不可</div>
+---
+
+## 建模闭环
 
 ```mermaid
-%%{init: {"theme":"base","themeVariables":{"fontFamily":"PingFang SC, Hiragino Sans GB, Microsoft YaHei","fontSize":"18px","primaryColor":"#E8EFF8","primaryTextColor":"#1E4FA8","primaryBorderColor":"#1E4FA8","lineColor":"#8B97A8","tertiaryColor":"#F0F5FC"},"flowchart":{"curve":"linear","nodeSpacing":46,"rankSpacing":78,"padding":8,"useMaxWidth":true}}}%%
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Microsoft YaHei, sans-serif",
+    "primaryColor": "#ffffff",
+    "primaryTextColor": "#000000",
+    "primaryBorderColor": "#000000",
+    "lineColor": "#000000",
+    "secondaryColor": "#ffffff",
+    "tertiaryColor": "#ffffff"
+  }
+}}%%
 flowchart LR
     A["问题定义"] --> B["模型建立"]
     B --> C["参数确定"]
     C --> D["求解计算"]
     D --> E["结果检验"]
     E --> F["模型改进"]
-    style F fill:#1E4FA8,stroke:#1E4FA8,color:#FFFFFF,stroke-width:0
+
+    classDef normal fill:#ffffff,stroke:#000000,color:#000000,stroke-width:1.5px;
+    class A,B,C,D,E,F normal;
 ```
 
-</div>
+**六项成果缺一不可。**
 
-<div class="tc-block">
+---
 
-<div class="tc-cap">过程节点 · 不接受只交终稿，每次活动留建模日志（不少于 4 条）</div>
+## 过程节点
+
+不接受只交终稿，每次活动须留下建模日志，不少于 4 条。
 
 ```mermaid
-%%{init: {"theme":"base","themeVariables":{"fontFamily":"PingFang SC, Hiragino Sans GB, Microsoft YaHei","fontSize":"16px","primaryColor":"#F0F5FC","primaryTextColor":"#0E3F8C","primaryBorderColor":"#B9CDE9","lineColor":"#8B97A8","tertiaryColor":"#E8EFF8"},"flowchart":{"curve":"linear","nodeSpacing":30,"rankSpacing":84,"padding":8,"useMaxWidth":true}}}%%
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "fontFamily": "Microsoft YaHei, sans-serif",
+    "primaryColor": "#ffffff",
+    "primaryTextColor": "#000000",
+    "primaryBorderColor": "#000000",
+    "lineColor": "#000000",
+    "secondaryColor": "#ffffff",
+    "tertiaryColor": "#ffffff"
+  }
+}}%%
 flowchart LR
-    W1["第 1 周末 · 选题表"] --> W2["第 2 周末 · 模型方案书"]
-    W2 --> W3["第 3 周中 · 中期进度"]
-    W3 --> W4["第 4 周末 · 终稿"]
-    W4 --> W5["第 5 周 · 汇报答辩"]
-    style W5 fill:#1E4FA8,stroke:#1E4FA8,color:#FFFFFF,stroke-width:0
+    W1["第 1 周末<br/>选题表"]
+    W2["第 2 周末<br/>模型方案书"]
+    W3["第 3 周中<br/>中期进度"]
+    W4["第 4 周末<br/>终稿"]
+    W5["第 5 周<br/>汇报答辩"]
+
+    W1 --> W2 --> W3 --> W4 --> W5
+
+    classDef normal fill:#ffffff,stroke:#000000,color:#000000,stroke-width:1.5px;
+    class W1,W2,W3,W4,W5 normal;
 ```
 
-</div>
+---
 
-<div class="tc-cards">
-  <div class="card">
-    <div class="card-main">
-      <div class="card-head">
-        <span class="card-no">01</span>
-        <span class="card-title">提交成果</span>
-      </div>
-      <p class="card-body">3000—4000 字报告，逐环节完成六项论证；另附数据文件、可运行代码，以及《AI 使用声明表》《数据真实性声明》。</p>
-    </div>
-    <div class="card-tag">报告 · 数据 · 代码 · 声明表</div>
-  </div>
+## 提交成果
 
-  <div class="card card-accent">
-    <div class="card-main">
-      <div class="card-head">
-        <span class="card-no">02</span>
-        <span class="card-title">评价标准</span>
-      </div>
-      <p class="card-body">过程性 20 ＋ 终稿 60 ＋ 答辩 20 ＝ 100 分。终稿六维权重：结果检验 25%，模型建立与参数确定各 20%，求解计算 15%，问题定义与模型改进各 10%。</p>
-    </div>
-    <div class="card-tag">结果检验权重最高</div>
-  </div>
-</div>
+```mermaid
+flowchart TB
+    A["提交成果"] --> B["3000—4000 字报告"]
+    A --> C["数据文件"]
+    A --> D["可运行代码"]
+    A --> E["AI 使用声明表"]
+    A --> F["数据真实性声明"]
 
-<div class="tc-foot">
-  <span class="tc-foot-label">诚信与 AI</span>
-  <span class="tc-foot-body">AI 可用于检索、解释、代码草稿与语言润色；<span class="warn">禁止代写实质内容、伪造数据、提交看不懂的代码</span>。答辩随机抽问，答不出按未达成计分。</span>
-</div>
+    classDef normal fill:#ffffff,stroke:#000000,color:#000000,stroke-width:1.5px;
+    class A,B,C,D,E,F normal;
+```
 
-</div>
+报告须逐环节完成六项论证。
 
-<style>
-.tc {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: #ffffff;
-  color: #1a2230;
-  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
-  box-sizing: border-box;
-}
+---
 
-.tc-top {
-  flex: 0 0 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  background: #0e3f8c;
-  border-radius: 6px;
-}
-.tc-top-title {
-  font-size: 30px;
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 1px;
-}
-.tc-top-meta {
-  font-size: 16px;
-  color: #c7d7ef;
-}
+## 评价标准
 
-.tc-task {
-  flex: 0 0 52px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0 20px;
-  background: #f0f5fc;
-  border-left: 6px solid #1e4fa8;
-  font-size: 22px;
-  line-height: 1.5;
-}
-.tc-task-label {
-  font-size: 22px;
-  font-weight: 700;
-  color: #0e3f8c;
-}
+```mermaid
+pie showData
+    title 终稿六维评价权重
+    "结果检验" : 25
+    "模型建立" : 20
+    "参数确定" : 20
+    "求解计算" : 15
+    "问题定义" : 10
+    "模型改进" : 10
+```
 
-.tc-block {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.tc-cap {
-  font-size: 16px;
-  color: #8b97a8;
-}
+### 总成绩构成
 
-.tc-cards {
-  flex: 1 1 auto;
-  display: flex;
-  gap: 14px;
-  min-height: 0;
-}
-.card {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 18px 20px;
-  background: #ffffff;
-  border: 1px solid #d6dce5;
-  border-radius: 8px;
-  box-sizing: border-box;
-}
-.card-accent {
-  background: #f7f9fc;
-  border-color: #b9cde9;
-}
-.card-main {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.card-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.card-no {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  background: #1e4fa8;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
-}
-.card-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0e3f8c;
-}
-.card-body {
-  margin: 0;
-  font-size: 22px;
-  line-height: 1.5;
-  color: #1a2230;
-}
-.card-tag {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  height: 30px;
-  padding: 0 14px;
-  background: #f0f5fc;
-  border-radius: 15px;
-  font-size: 16px;
-  color: #1e4fa8;
-}
-.card-accent .card-tag {
-  background: #e8eff8;
-}
+```mermaid
+pie showData
+    title 总成绩构成
+    "过程性评价" : 20
+    "终稿" : 60
+    "答辩" : 20
+```
 
-.tc-foot {
-  flex: 0 0 72px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 0 20px;
-  background: #f0f5fc;
-  border-left: 6px solid #d9534f;
-}
-.tc-foot-label {
-  font-size: 22px;
-  font-weight: 700;
-  color: #0e3f8c;
-}
-.tc-foot-body {
-  flex: 1;
-  font-size: 22px;
-  line-height: 1.5;
-  color: #1a2230;
-}
-.warn {
-  font-weight: 700;
-  color: #d9534f;
-}
-</style>
+**结果检验权重最高。**
 
+---
+
+## 诚信与 AI
+
+```mermaid
+flowchart LR
+    A["AI 可以用于"] --> B["资料检索"]
+    A --> C["概念解释"]
+    A --> D["代码草稿"]
+    A --> E["语言润色"]
+
+    F["禁止行为"] --> G["代写实质内容"]
+    F --> H["伪造数据"]
+    F --> I["提交看不懂的代码"]
+
+    classDef normal fill:#ffffff,stroke:#000000,color:#000000,stroke-width:1.5px;
+    class A,B,C,D,E,F,G,H,I normal;
+```
+
+- AI 可用于检索、解释、代码草稿与语言润色。
+- 禁止代写实质内容。
+- 禁止伪造数据。
+- 禁止提交自己看不懂的代码。
+- 答辩将随机抽问，答不出按未达成计分。
 
 
 ---
