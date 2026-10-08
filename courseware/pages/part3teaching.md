@@ -254,7 +254,7 @@ class: text-sm
 
 选一个真实或拟真的经济现象，用经济数学模型回答它，并说明结论在什么条件下成立。
 
----
+
 
 ## 建模闭环
 
@@ -335,10 +335,14 @@ flowchart TB
 报告须逐环节完成六项论证。
 
 ---
+layout: two-cols
+---
 
+::left::
 ## 评价标准
 
-```mermaid
+
+```mermaid{scale:0.5}
 pie showData
     title 终稿六维评价权重
     "结果检验" : 25
@@ -349,7 +353,9 @@ pie showData
     "模型改进" : 10
 ```
 
-### 总成绩构成
+::right::
+
+## 总成绩构成
 
 ```mermaid
 pie showData
@@ -358,14 +364,17 @@ pie showData
     "终稿" : 60
     "答辩" : 20
 ```
-
 **结果检验权重最高。**
 
+---
+layout: two-cols
 ---
 
 ## 诚信与 AI
 
-```mermaid
+::left::
+
+```mermaid{scale: 0.5}
 flowchart LR
     A["AI 可以用于"] --> B["资料检索"]
     A --> C["概念解释"]
@@ -380,12 +389,12 @@ flowchart LR
     class A,B,C,D,E,F,G,H,I normal;
 ```
 
+::right::
 - AI 可用于检索、解释、代码草稿与语言润色。
 - 禁止代写实质内容。
 - 禁止伪造数据。
 - 禁止提交自己看不懂的代码。
 - 答辩将随机抽问，答不出按未达成计分。
-
 
 ---
 
