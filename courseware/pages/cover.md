@@ -1,10 +1,10 @@
 ---
 theme: default
 class: text-center
-title: AI赋能大学教学与科研
-info: 面向大学教师的 Workbuddy 等 AI 工具应用培训
-author: 高等教育数字化教学培训
-keywords: AI, 高校教师, 教学, 科研, Workbuddy
+title: AI赋能教学与科研
+info: 面向教师的 Workbuddy 等 AI 工具应用培训
+author: 教育数字化教学培训
+keywords: AI, 教师, 教学, 科研, Workbuddy
 mdc: true
 lineNumbers: false
 colorSchema: light
@@ -16,15 +16,15 @@ fonts:
   mono: 'Fira Code, Consolas, Monaco, monospace'
 ---
 
-# AI赋能大学教学与科研
+# AI赋能教学与科研
 
 ## 以 Workbuddy 等 AI 工具为例
 
-面向大学教师的实践培训
+面向教师的实践培训
 
 60分钟视频课程 5部分
 
 教学发展中心 / 教师发展培训
 
-[下载AI赋能大学教学与科研幻灯片](https://bettermorn.github.io/AIAgent/courseware/AI4Edu.pdf)
+[下载AI赋能教学与科研幻灯片](https://bettermorn.github.io/AIAgent/courseware/AI4Edu.pdf)
 
