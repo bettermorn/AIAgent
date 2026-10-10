@@ -16,7 +16,7 @@ fonts:
   mono: 'Fira Code, Consolas, Monaco, monospace'
 ---
 
-# AI赋能教学与科研
+# AI赋能职业院校教学与科研
 
 ## 以 Workbuddy 等 AI 工具为例
 
