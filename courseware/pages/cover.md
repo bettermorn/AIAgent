@@ -1,7 +1,7 @@
 ---
 theme: default
 class: text-center
-title: AI赋能教学与科研
+title: AI赋能职业院校教学与科研
 info: 面向教师的 Workbuddy 等 AI 工具应用培训
 author: 教育数字化教学培训
 keywords: AI, 教师, 教学, 科研, Workbuddy
