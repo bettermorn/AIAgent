@@ -26,5 +26,5 @@ fonts:
 
 教学发展中心 / 教师发展培训
 
-[下载AI赋能教学与科研幻灯片](https://bettermorn.github.io/AIAgent/courseware/AI4Edu.pdf)
+[下载AI赋能职业院校教学与科研幻灯片](https://bettermorn.github.io/AIAgent/courseware/AI4Edu.pdf)
 
