@@ -23,7 +23,7 @@
 | 整体文档骨架（引言/术语/角色/功能/约束） | 国内软件企业最常用的 **GB/T 8567-2006《计算机软件文档编制规范》** 配套的"软件需求规格说明书"模板传统 |
 
 
-一份**现代化、国际化改写版的国产 SRS 模板**：
+一份**专业、国际化改写版的实战SRS 模板**：
 
 1. 整体章节骨架 → 继承自 **GB/T 8567-2006** 及其衍生的企业模板传统（引言/角色/功能描述/约束）；
 2. 功能编号体系 → 继承自 **IEEE 830 / ISO-IEC-IEEE 29148** 关于功能性需求可编号、可追溯的要求；
@@ -31,6 +31,17 @@
 4. "功能树"命名方式 → 借用了产品管理/敏捷实践中的功能拆解思维，并非任何正式标准条文。
 
 它不是某一部标准文件的"官方模板"，而是业界在 GB/T 8567 / IEEE 830（及其后继 ISO/IEC/IEEE 29148）基础上，结合 UML 建模规范和现代产品管理术语自行整合出的实用模板。
+
+
+# URPS非功能需求：可用性、可靠性、性能和支持性示例
+
+[Usability（可用性）需求示例](https://github.com/bettermorn/IntelligentSWEPractice/blob/main/courseware/pages/part1analyze.md#usability%E5%8F%AF%E7%94%A8%E6%80%A7%E9%9C%80%E6%B1%82%E7%A4%BA%E4%BE%8B)
+
+[Reliability（可靠性）需求示例](https://github.com/bettermorn/IntelligentSWEPractice/blob/main/courseware/pages/part1analyze.md#reliability%E5%8F%AF%E9%9D%A0%E6%80%A7%E9%9C%80%E6%B1%82%E7%A4%BA%E4%BE%8B)
+
+[Performance（性能）需求示例](https://github.com/bettermorn/IntelligentSWEPractice/blob/main/courseware/pages/part1analyze.md#-performance%E6%80%A7%E8%83%BD%E9%9C%80%E6%B1%82%E7%A4%BA%E4%BE%8B)
+
+[Supportability（支持性）需求示例](https://github.com/bettermorn/IntelligentSWEPractice/blob/main/courseware/pages/part1analyze.md#%EF%B8%8F-supportability%E6%94%AF%E6%8C%81%E6%80%A7%E9%9C%80%E6%B1%82%E7%A4%BA%E4%BE%8B)
 
 
 # 多智能体 AI Agent 工业分析平台：软件功能规格说明书（示例）
