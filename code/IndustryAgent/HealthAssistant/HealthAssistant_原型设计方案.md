@@ -3,6 +3,7 @@
 > 版本：v1.0　｜　依据：项目 README 与现有前端代码（`App.jsx`、`AssistantMessage.jsx`、`styles.css`、`models.py`）
 > 定位：合规优先的 RAG + LLM 健康教育助手，**仅供教育演示，非医疗设备**。
 
+视频 [【无声演示】健康助手智能体](https://www.bilibili.com/video/BV1cLh86YEBD)
 ---
 
 ## 1. 产品定位与目标用户
