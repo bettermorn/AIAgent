@@ -54,5 +54,5 @@ AIAgent/
 
 ## 在线访问
 
-- GitHub Pages：https://bettermorn.github.io/AIAgent/
+- GitHub Pages：https://bettermorn.github.io/AIAgent/courseware/
 
