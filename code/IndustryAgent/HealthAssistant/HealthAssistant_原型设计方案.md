@@ -255,7 +255,7 @@ flowchart TD
 | 后端 | FastAPI（`/ask`、`/healthz`） | 返回 `answer/disclaimer/citations/policy` |
 | 新增组件 | `RiskBanner`、`ErrorCard`、`NewChatButton`、`PrivacyTag` | 对应 3.3、5.2 |
 
-> 注：README 的 API 示例中字段为 `gender`/`medical_history`，而 `models.py` 实际使用 `sex`/`conditions`。教学时请以代码模型为准，并建议同步修正文档，避免学生照抄后字段不生效。
+
 
 ### 迭代计划
 
