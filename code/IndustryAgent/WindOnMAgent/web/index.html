@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>海上风电场运维智能体</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<div id="login" class="login hidden">
+  <form id="loginForm" class="login-card">
+    <div class="logo">🌊</div>
+    <h1>海上风电场运维智能体</h1>
+    <p class="sub">Offshore Wind O&amp;M Agent</p>
+    <label>用户名<input id="lu" autocomplete="username" value="operator1"></label>
+    <label>密码<input id="lp" type="password" autocomplete="current-password" value="windom123"></label>
+    <button class="btn primary" type="submit">登录</button>
+    <div id="lerr" class="err"></div>
+    <div class="demo">
+      演示账号（密码均为 windom123）：<br>
+      <a data-u="operator1">operator1 值班运维</a> · <a data-u="engineer1">engineer1 检修工程师</a> ·
+      <a data-u="approver1">approver1 审批人</a> · <a data-u="approver2">approver2 审批人</a> ·
+      <a data-u="kadmin1">kadmin1 知识管理员</a> · <a data-u="expert1">expert1 领域专家</a> ·
+      <a data-u="operator2">operator2 仅二号场</a> · <a data-u="admin">admin</a>
+    </div>
+  </form>
+</div>
+
+<div id="app" class="app hidden">
+  <aside class="side">
+    <div class="brand">🌊 <span>运维智能体</span></div>
+    <nav id="nav"></nav>
+    <div class="side-foot">
+      <div id="who"></div>
+      <button class="btn small" id="logout">退出</button>
+    </div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <div class="farm-sel">风场 <select id="farmSel"></select></div>
+      <div id="topStats" class="top-stats"></div>
+      <div class="spacer"></div>
+      <div id="wsState" class="ws">● 推送离线</div>
+    </header>
+    <div id="toasts" class="toasts"></div>
+    <section id="view"></section>
+  </main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
