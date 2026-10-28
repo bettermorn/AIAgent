@@ -27,7 +27,7 @@ AIAgent/
 | [GameNPC](code/GameNPC/) | 基于 LangGraph + DeepSeek 的多角色游戏 NPC 对话 Web 应用，AI 自动路由并支持多轮上下文感知的角色扮演。 |
 | [HumanIntheLoop](code/HumanIntheLoop/) | 人在回路 Agent 演示，支持工具调用前人工审批、修改状态与时间回溯，检查点持久化于 PostgreSQL。 |
 | [IAISWDaily](code/IAISWDaily/) | 工业智能/工业软件信息搜索智能体，定时检索网站、公众号、B 站等多渠道信息，自动去重摘要并生成每日日报。 |
-| [IndustryAgent](code/IndustryAgent/) | 行业智能体集，包含辅助诊断与健康管理的医疗健康助手、以及法律助手两个子项目。 |
+| [IndustryAgent](code/IndustryAgent/) | 行业智能体集，包含辅助诊断与健康管理的医疗健康助手、法律助手以及海上风电场运维智能体等三个子项目。 |
 | [KBAgent](code/KBAgent/) | 基于 LangChain + FAISS + DashScope（通义千问）+ Gradio 的知识库 RAG 问答智能体。 |
 | [MCPSevClient](code/MCPSevClient/) | MCP（Model Context Protocol）教学级实现，含 FastMCP 服务器、STDIO 客户端与 React 聊天界面。 |
 | [MultiAgent](code/MultiAgent/) | 基于 AutoGen 多智能体框架的演示项目，包含芯片人才调研智能体与会议助手。 |
