@@ -1,0 +1,23 @@
+{
+  "name": "fdirm-agent-backend",
+  "version": "1.0.0",
+  "description": "金融智能风险管理智能体 - Node.js 后端（API 层 / Agent 层 / 模型层 / 数据层）",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "db:init": "node src/db/init.js",
+    "db:reset": "node src/db/init.js --reset",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}
