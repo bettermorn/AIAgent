@@ -1,0 +1,16 @@
+{
+  "name": "fdirm-agent",
+  "private": true,
+  "version": "1.0.0",
+  "description": "金融智能风险管理智能体 Web 应用（React + Node.js + PostgreSQL + DeepSeek）",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "db:init": "npm --prefix backend run db:init",
+    "db:reset": "npm --prefix backend run db:reset",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix backend start",
+    "test": "npm --prefix backend test"
+  }
+}
