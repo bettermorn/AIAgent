@@ -24,6 +24,7 @@ AIAgent/
 | [CodeAgent](code/CodeAgent/) | LLM 驱动的自主编程助手，可分析本地代码库、生成逐步执行计划并自我修正地完成代码修改。 |
 | [EduAgent](code/EduAgent/) | 英语学习智能助手，基于 CEFR 课纲驱动，结合学习记忆追踪与自适应选题（间隔复习 + 薄弱点强化）。 |
 | [EssayWriter](code/EssayWriter/) | 基于 LangGraph 的多 Agent 作文写作系统，串联「大纲规划 → 资料检索 → 草稿撰写 → 教师批改 → 修订迭代」完整流程。 |
+| [FDIRMAgent](code/FDRMAgent/) | 金融智能风险管理智能体，包括授信尽调智能体、风险预警智能体、风控助手 |
 | [GameNPC](code/GameNPC/) | 基于 LangGraph + DeepSeek 的多角色游戏 NPC 对话 Web 应用，AI 自动路由并支持多轮上下文感知的角色扮演。 |
 | [HumanIntheLoop](code/HumanIntheLoop/) | 人在回路 Agent 演示，支持工具调用前人工审批、修改状态与时间回溯，检查点持久化于 PostgreSQL。 |
 | [IAISWDaily](code/IAISWDaily/) | 工业智能/工业软件信息搜索智能体，定时检索网站、公众号、B 站等多渠道信息，自动去重摘要并生成每日日报。 |
