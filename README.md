@@ -120,7 +120,6 @@ AIAgent/
 ## 备注
 
 1. 若把 FDRMAgent 的"关联图谱图算法"宽松算作图谱，它是第二接近三者兼具的项目（RAG + 图算法 + 会话记忆），但严格意义上不算 KG。
-2. 远程与本地目录命名对应关系：CSAIAgent ↔ RAG_CustomerService_KQA，EduAgent ↔ EnglishStudyAssistant，CodeAgent ↔ CodingAgent，代码内容一致。
-3. TLAssessment 的 README 提到"课程知识库"，但代码中未发现检索/向量实现，故不计入 RAG。
+2. TLAssessment 的 README 提到"课程知识库"，但代码中未发现检索/向量实现，故不计入 RAG。
 
 
