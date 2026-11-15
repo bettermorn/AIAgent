@@ -40,6 +40,11 @@ AIAgent/
 | [TradingStrategies](code/TradingStrategies/) | 金融交易策略教学演示，提供规则、LLM、混合三种策略 Agent 及带回测与实时决策的 React Web 应用。 |
 | [enterprise_policy_agent.py](code/enterprise_policy_agent.py) | 企业制度问答 Agent（LangGraph + DeepSeek），基于制度知识库实现防幻觉的制度条款问答。 |
 
+
+
+
+
+
 ## docs/ 参考资料
 
 - **科普文**：AI 工程的提示词工程、上下文工程、驾驭层工程与循环工程；AI Agent 与 Agentic AI 的区别、联系与应用边界；开发 AI 智能体的实战步骤等（见 docs/readme.md 中的 CSDN 链接）。
@@ -56,4 +61,66 @@ AIAgent/
 ## 在线访问
 
 - GitHub Pages：https://bettermorn.github.io/AIAgent/courseware/
+
+# 项目技术特征分析
+
+> **分析对象**：[bettermorn/AIAgent](https://github.com/bettermorn/AIAgent)（默认分支 `main`，项目代码位于 `code/` 目录）
+> **分析方法**：
+> - **RAG**：retriever / embedding / 向量库（FAISS、Pinecone 等）/ BM25 检索
+> - **Knowledge Graph**：knowledge graph / 知识图谱 / Neo4j / Cypher / 三元组
+> - **Memory**：chat_history / 对话历史 / checkpoint / 记忆模块
+
+
+
+## 1. 用了 RAG 的项目
+
+| 项目 | 依据 | 链接 |
+|---|---|---|
+| **CSAIAgent**（本地目录名 RAG_CustomerService_KQA） | Pinecone + bge 中文向量模型做客服知识库问答 | [code/CSAIAgent](https://github.com/bettermorn/AIAgent/tree/main/code/CSAIAgent) |
+| **KBAgent** | LangChain + FAISS 知识库问答 | [code/KBAgent](https://github.com/bettermorn/AIAgent/tree/main/code/KBAgent) |
+| **IndustryAgent · 医疗健康助手** | `app/rag.py` | [code/IndustryAgent](https://github.com/bettermorn/AIAgent/tree/main/code/IndustryAgent) |
+| **IndustryAgent · 法律助手** | `app/services/rag.py` | [code/IndustryAgent](https://github.com/bettermorn/AIAgent/tree/main/code/IndustryAgent) |
+| **SuperAgent** | `rag.retriever` 轻量 RAG + 向量库 | [code/SuperAgent](https://github.com/bettermorn/AIAgent/tree/main/code/SuperAgent) |
+| **FDRMAgent**（金融风控） | `tools/knowledge.js` 用 BM25 检索授信制度知识库 | [code/FDRMAgent](https://github.com/bettermorn/AIAgent/tree/main/code/FDRMAgent) |
+| **IndustryAgent · 海上风电运维（WindOnMAgent）** | RetrievalAgent 做"图谱+文档+工单"混合检索（GraphRAG） | [code/IndustryAgent](https://github.com/bettermorn/AIAgent/tree/main/code/IndustryAgent) |
+| enterprise_policy_agent.py | 基于制度知识库问答（仅按 README 判断，未读码验证） | [code/enterprise_policy_agent.py](https://github.com/bettermorn/AIAgent/blob/main/code/enterprise_policy_agent.py) |
+
+## 2. 用了 Knowledge Graph 的项目
+
+| 项目 | 依据 | 链接 |
+|---|---|---|
+| **IndustryAgent · 海上风电运维（WindOnMAgent）** | `services/kg.py` + `ontology.py`：用 PostgreSQL 建实体/关系表（含时态、溯源、置信度），支持多跳查询，是仓库中唯一真正的知识图谱实现 | [code/IndustryAgent](https://github.com/bettermorn/AIAgent/tree/main/code/IndustryAgent) |
+
+> **说明**：FDRMAgent 有 `tools/graph.js`"关联图谱"（连通分量找团伙、资金闭环/循环担保检测），但那是**图算法**，不是知识图谱（无实体三元组/本体/图数据库），故不计入 KG。
+
+## 3. 用了 Memory 的项目
+
+| 项目 | 记忆形式 | 链接 |
+|---|---|---|
+| **EduAgent**（英语学习助手） | `memory.py`：学生长期学习记忆（掌握度追踪 + SM-2 间隔复习） | [code/EduAgent](https://github.com/bettermorn/AIAgent/tree/main/code/EduAgent) |
+| **EssayWriter** | LangGraph `MemorySaver` 检查点 | [code/EssayWriter](https://github.com/bettermorn/AIAgent/tree/main/code/EssayWriter) |
+| **GameNPC** | 多轮对话历史，NPC 共享完整上下文 | [code/GameNPC](https://github.com/bettermorn/AIAgent/tree/main/code/GameNPC) |
+| **HumanIntheLoop** | 对话历史 + LangGraph 检查点持久化到 PostgreSQL | [code/HumanIntheLoop](https://github.com/bettermorn/AIAgent/tree/main/code/HumanIntheLoop) |
+| **CSAIAgent** | `app/memory.py` 会话记忆（多轮） | [code/CSAIAgent](https://github.com/bettermorn/AIAgent/tree/main/code/CSAIAgent) |
+| **FDRMAgent** | `chat_messages` 表存会话记忆，Copilot 加载历史 | [code/FDRMAgent](https://github.com/bettermorn/AIAgent/tree/main/code/FDRMAgent) |
+| **IndustryAgent · 海上风电运维** | Agent 基类记忆层：任务状态 Checkpoint（PostgreSQL）+ 长期知识 | [code/IndustryAgent](https://github.com/bettermorn/AIAgent/tree/main/code/IndustryAgent) |
+
+## 4. 同时使用 RAG + Knowledge Graph + Memory 的项目
+
+**只有 1 个：IndustryAgent 里的"海上风电场运维智能体"（WindOnMAgent）**
+
+- **RAG**：RetrievalAgent 做图谱 + 文档 + 工单混合检索（GraphRAG），证据带来源/版本/页码
+- **KG**：`kg.py` + `ontology.py`，PostgreSQL 实体/关系建模、多跳查询、时态与溯源
+- **Memory**：Agent 六层结构中含记忆层（Checkpoint + 长期知识）
+
+链接：[code/IndustryAgent](https://github.com/bettermorn/AIAgent/tree/main/code/IndustryAgent)（风电运维为其子项目 WindOnMAgent）
+
+
+
+## 备注
+
+1. 若把 FDRMAgent 的"关联图谱图算法"宽松算作图谱，它是第二接近三者兼具的项目（RAG + 图算法 + 会话记忆），但严格意义上不算 KG。
+2. 远程与本地目录命名对应关系：CSAIAgent ↔ RAG_CustomerService_KQA，EduAgent ↔ EnglishStudyAssistant，CodeAgent ↔ CodingAgent，代码内容一致。
+3. TLAssessment 的 README 提到"课程知识库"，但代码中未发现检索/向量实现，故不计入 RAG。
+
 
