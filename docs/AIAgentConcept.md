@@ -787,10 +787,10 @@ flowchart TD
 
 | 层面 | 技术方案 |
 |---|---|
-| 模型 | 【补充】支持 Function Calling 的大模型（仓库统一使用 DeepSeek） |
-| 工具 | 【原文】选择工具 → 调用工具 → 获取结果的循环；【补充】用 JSON Schema 描述工具参数 |
-| 控制 | 【原文】规划、执行、校验混在一起，复杂任务可控性较弱，因此只适合简单任务 |
-| **框架** | 【补充·已核实】OpenAI Agents SDK：`Agent`（模型+指令+工具）+ `Runner.run()` 即由 SDK 跑工具循环，自带 tracing 和 guardrails。<br>【补充】不想引入框架时，直接用模型的 Function Calling 接口自己写循环（仓库多个项目只依赖 `openai` 包） |
+| 模型 | 支持 Function Calling 的大模型（仓库统一使用 DeepSeek） |
+| 工具 | 选择工具 → 调用工具 → 获取结果的循环；   用 JSON Schema 描述工具参数 |
+| 控制 | 规划、执行、校验混在一起，复杂任务可控性较弱，因此只适合简单任务 |
+| **框架** | 【补充·已核实】OpenAI Agents SDK：`Agent`（模型+指令+工具）+ `Runner.run()` 即由 SDK 跑工具循环，自带 tracing 和 guardrails。<br>   不想引入框架时，直接用模型的 Function Calling 接口自己写循环（仓库多个项目只依赖 `openai` 包） |
 
 **适合**：单轮或多轮的简单工具调用。
 
@@ -802,10 +802,10 @@ flowchart TD
 
 | 层面 | 技术方案 |
 |---|---|
-| 推理 | 【补充】提示词中要求模型输出 Thought/Action 格式，或使用原生工具调用 |
-| 动作 | 【原文】搜索、数据库查询、浏览器操作、API 调用 |
-| 循环保护 | 【原文】必须设置**最大步数、超时、异常处理**（文章指出 ReAct 容易无限循环、成本难控） |
-| 成本控制 | 【原文】工具调用次数和成本较难控制，需限制调用次数 |
+| 推理 | 提示词中要求模型输出 Thought/Action 格式，或使用原生工具调用 |
+| 动作 | 搜索、数据库查询、浏览器操作、API 调用 |
+| 循环保护 | 必须设置**最大步数、超时、异常处理**（文章指出 ReAct 容易无限循环、成本难控） |
+| 成本控制 | 工具调用次数和成本较难控制，需限制调用次数 |
 | **框架** | 【补充·已核实】LangGraph 以 `recursion_limit` 限制图的循环步数，防止 ReAct 无限循环；LangSmith 可看逐节点执行和 Token 用量。<br>备选：OpenAI Agents SDK、Google ADK 的 LLM Agent（均为模型 + 工具 + 循环） |
 
 **适合**：开放式任务、需要根据工具返回结果动态决策的任务。
@@ -817,11 +817,11 @@ flowchart TD
 
 | 组件 | 技术方案 |
 |---|---|
-| Planner | 【原文】规划器，生成任务计划；【补充】让 LLM 输出结构化步骤列表（JSON） |
-| Executor | 【原文】执行器，逐个执行子任务；【补充】每个子任务可内部用 ReAct |
-| 重规划 | 【原文】"检查结果 → 计划是否需要调整 → 更新计划"的循环 |
-| 状态 | 【补充】保存计划、已完成步骤、中间结果（状态图或数据库） |
-| 人工审核 | 【原文】便于人工审核计划，在计划生成后设审批点 |
+| Planner | 规划器，生成任务计划；   让 LLM 输出结构化步骤列表（JSON） |
+| Executor | 执行器，逐个执行子任务；   每个子任务可内部用 ReAct |
+| 重规划 | "检查结果 → 计划是否需要调整 → 更新计划"的循环 |
+| 状态 |    保存计划、已完成步骤、中间结果（状态图或数据库） |
+| 人工审核 | 便于人工审核计划，在计划生成后设审批点 |
 | **框架** | 【补充·已核实】LangGraph：Planner、Executor、Replanner 各为一个节点，用条件边决定"继续执行 / 重规划 / 结束"，计划和已完成步骤放在图状态里，配检查点可做断点恢复。<br>备选：Microsoft Agent Framework 的 workflows（基于图的编排） |
 
 **优点**：结构清晰、易监控、支持失败重试和局部恢复。
@@ -833,13 +833,13 @@ flowchart TD
 
 | 组件 | 技术方案 |
 |---|---|
-| 意图识别 | 【原文】分类器/路由器预测任务类型与**置信度**；【补充】可用 LLM 分类、小模型分类或规则 + 关键词 |
-| 低置信度处理 | 【原文】置信度不足时**请求用户澄清**，再重新路由 |
-| 专用 Agent | 【原文】不同任务需要不同提示词、工具和权限；【补充】每个 Agent 独立配置工具白名单 |
-| 结果处理 | 【原文】统一结果格式化，必要时加结果审核 |
+| 意图识别 | 分类器/路由器预测任务类型与**置信度**；   可用 LLM 分类、小模型分类或规则 + 关键词 |
+| 低置信度处理 | 置信度不足时**请求用户澄清**，再重新路由 |
+| 专用 Agent | 不同任务需要不同提示词、工具和权限；   每个 Agent 独立配置工具白名单 |
+| 结果处理 | 统一结果格式化，必要时加结果审核 |
 | **框架** | 【补充·已核实】LangGraph：路由节点输出类别和置信度，`add_conditional_edges` 按类别跳转到不同 Agent 子图；低置信度跳到"澄清"节点。<br>OpenAI Agents SDK：triage Agent 通过 `handoffs=[...]` 把任务转交给专用 Agent。<br>Google ADK：`transfer_to_agent`；注意避免把路由 Agent 自己列为转交目标，否则会递归【补充·已核实（来自第三方使用记录）】 |
 
-**与 Supervisor 的区别**【原文】：Router 通常只选**一个**最合适的 Agent；Supervisor 可连续调度多个 Agent，并根据中间结果动态决策。
+**与 Supervisor 的区别**：Router 通常只选**一个**最合适的 Agent；Supervisor 可连续调度多个 Agent，并根据中间结果动态决策。
 
 
 
@@ -847,13 +847,13 @@ flowchart TD
 
 | 组件 | 技术方案 |
 |---|---|
-| 任务拆解 | 【原文】拆成**互相独立**的子任务 |
-| 并发执行 | 【补充】异步并发（如 `asyncio.gather` / `Promise.all`）或图的并行分支 |
-| 失败处理 | 【原文】每个子任务单独判断成功/失败，失败则重试或记录，**不能因一个失败丢掉全部结果** |
-| 汇总 | 【原文】结果汇总器 + 综合分析 Agent，需解决**结果冲突** |
-| **框架** | 【补充·已核实】LangGraph 的并行分支或 `Send` API（动态扇出）；Google ADK 的 `ParallelAgent`（扇出、错误隔离、结果聚合）。<br>OpenAI Agents SDK 没有原生并行模式，需要自己用 `asyncio.gather` 编排（第三方使用记录）<br>【补充】多个写同一状态键的并行 Agent 要用不同的键，否则会互相覆盖（第三方文章报告过 OpenAI SDK 上下文变量被静默覆盖的情况） |
+| 任务拆解 | 拆成**互相独立**的子任务 |
+| 并发执行 |    异步并发（如 `asyncio.gather` / `Promise.all`）或图的并行分支 |
+| 失败处理 | 每个子任务单独判断成功/失败，失败则重试或记录，**不能因一个失败丢掉全部结果** |
+| 汇总 | 结果汇总器 + 综合分析 Agent，需解决**结果冲突** |
+| **框架** | LangGraph 的并行分支或 `Send` API（动态扇出）；Google ADK 的 `ParallelAgent`（扇出、错误隔离、结果聚合）。<br>OpenAI Agents SDK 没有原生并行模式，需要自己用 `asyncio.gather` 编排（第三方使用记录）<br>   多个写同一状态键的并行 Agent 要用不同的键，否则会互相覆盖（第三方文章报告过 OpenAI SDK 上下文变量被静默覆盖的情况） |
 
-**代价**【原文】：资源消耗和调用成本增加。
+**代价**   ：资源消耗和调用成本增加。
 
 
 
@@ -861,11 +861,11 @@ flowchart TD
 
 | 组件 | 技术方案 |
 |---|---|
-| 生成 | 【原文】生成 Agent 产出初稿 |
-| 评审 | 【原文】Critic，可拆成质量评审、事实核查、格式检查多个 Agent |
-| 评审指标 | 【原文】事实正确性、任务完成度、逻辑一致性、格式规范、安全性、引用完整性、是否有幻觉 |
-| 终止条件 | 【原文】达到**质量阈值**才发布；【补充】同时设最大修订轮数，避免死循环 |
-| **框架** | 【补充·已核实】LangGraph：生成节点 → 评审节点 → 条件边（达标发布 / 不达标回到生成），`recursion_limit` 兜底。<br>Google ADK：`LoopAgent` 做迭代修订。<br>OpenAI Agents SDK 的 guardrails 可做输出检查，但它是"拦截"，不是"修订循环" |
+| 生成 |    生成 Agent 产出初稿 |
+| 评审 |    Critic，可拆成质量评审、事实核查、格式检查多个 Agent |
+| 评审指标 |    事实正确性、任务完成度、逻辑一致性、格式规范、安全性、引用完整性、是否有幻觉 |
+| 终止条件 |    达到**质量阈值**才发布；   同时设最大修订轮数，避免死循环 |
+| **框架** | LangGraph：生成节点 → 评审节点 → 条件边（达标发布 / 不达标回到生成），`recursion_limit` 兜底。<br>Google ADK：`LoopAgent` 做迭代修订。<br>OpenAI Agents SDK 的 guardrails 可做输出检查，但它是"拦截"，不是"修订循环" |
 
 **适合**：长文写作、代码生成与修复、结构化报告、法律/医疗/金融等高风险内容。
 
@@ -875,12 +875,12 @@ flowchart TD
 
 | 组件 | 技术方案 |
 |---|---|
-| 主管职责 | 【原文】任务拆解、Agent 选择、参数传递、上下文管理、结果合并、冲突解决、失败重试、最终决策 |
-| 专家 Agent | 【原文】搜索、代码、数据、写作等角色 |
-| 动态调度 | 【原文】根据中间结果判断是否需要补充任务，形成循环 |
-| 通信与权限 | 【补充】统一消息格式、各 Agent 最小权限；可考虑 A2A 等跨 Agent 协议 |
-| 最终审核 | 【原文】Supervisor 汇总后做最终审核再返回 |
-| **框架** | 【补充·已核实】LangGraph 支持 supervisor、swarm、hierarchical 三种多 Agent 拓扑，其中 supervisor 是其原生模式。<br>Microsoft Agent Framework（AutoGen 与 Semantic Kernel 的继任者，已发布 1.0，支持 A2A 与 MCP）。<br>OpenAI Agents SDK：agents-as-tools 或 handoffs。Google ADK：`sub_agents` 层级。<br>**注意**：Microsoft **AutoGen 已归档、不再维护**，新项目不建议选用。<br>【补充·未核实】CrewAI 也常用于角色式多 Agent 协作，我没有查证其当前状态 |
+| 主管职责 |    任务拆解、Agent 选择、参数传递、上下文管理、结果合并、冲突解决、失败重试、最终决策 |
+| 专家 Agent |    搜索、代码、数据、写作等角色 |
+| 动态调度 |    根据中间结果判断是否需要补充任务，形成循环 |
+| 通信与权限 |    统一消息格式、各 Agent 最小权限；可考虑 A2A 等跨 Agent 协议 |
+| 最终审核 |    Supervisor 汇总后做最终审核再返回 |
+| **框架** | LangGraph 支持 supervisor、swarm、hierarchical 三种多 Agent 拓扑，其中 supervisor 是其原生模式。<br>Microsoft Agent Framework（AutoGen 与 Semantic Kernel 的继任者，已发布 1.0，支持 A2A 与 MCP）。<br>OpenAI Agents SDK：agents-as-tools 或 handoffs。Google ADK：`sub_agents` 层级。<br>**注意**：Microsoft **AutoGen 已归档、不再维护**，新项目不建议选用。<br>CrewAI 也常用于角色式多 Agent 协作，我没有查证其当前状态 |
 
 
 
@@ -888,12 +888,12 @@ flowchart TD
 
 | 组件 | 技术方案 |
 |---|---|
-| 风险判断 | 【原文】识别高风险操作：删除数据、发邮件/消息、发布文章、支付、改生产环境、提交法律财务文件、访问高权限系统 |
-| 暂停与恢复 | 【补充】流程在审批节点**暂停并持久化状态**，批准后从断点继续（检查点机制，如数据库存储） |
-| 审批界面 | 【原文】应展示：将执行什么操作、使用什么参数、可能的影响、能否撤销、审批人是谁、超时如何处理 |
-| 三种审批结果 | 【原文】批准 → 执行；拒绝 → 终止或修改；要求修改 → 调整计划后重新审批 |
-| 审计 | 【原文】记录操作结果 |
-| **框架** | 【补充·已核实】LangGraph：`interrupt()` 暂停，审批后用 `Command(resume=...)` 恢复（旧写法 `interrupt_before`）；`graph.update_state()` 可改状态。检查点：`MemorySaver` **只适合单进程**调试，生产用 `PostgresSaver` / `AsyncPostgresSaver`，仓库示例用 `SqliteSaver`（`langgraph-checkpoint-sqlite`）。<br>OpenAI Agents SDK：可恢复的审批流（run 暂停等待批准）。<br>**版本提示**：仓库 HumanIntheLoop 固定 `langgraph>=0.2,<0.4`，用的是旧写法；新版本的 `interrupt()` 需要自行迁移 |
+| 风险判断 |    识别高风险操作：删除数据、发邮件/消息、发布文章、支付、改生产环境、提交法律财务文件、访问高权限系统 |
+| 暂停与恢复 |    流程在审批节点**暂停并持久化状态**，批准后从断点继续（检查点机制，如数据库存储） |
+| 审批界面 |    应展示：将执行什么操作、使用什么参数、可能的影响、能否撤销、审批人是谁、超时如何处理 |
+| 三种审批结果 |    批准 → 执行；拒绝 → 终止或修改；要求修改 → 调整计划后重新审批 |
+| 审计 |    记录操作结果 |
+| **框架** | LangGraph：`interrupt()` 暂停，审批后用 `Command(resume=...)` 恢复（旧写法 `interrupt_before`）；`graph.update_state()` 可改状态。检查点：`MemorySaver` **只适合单进程**调试，生产用 `PostgresSaver` / `AsyncPostgresSaver`，仓库示例用 `SqliteSaver`（`langgraph-checkpoint-sqlite`）。<br>OpenAI Agents SDK：可恢复的审批流（run 暂停等待批准）。<br>**版本提示**：仓库 HumanIntheLoop 固定 `langgraph>=0.2,<0.4`，用的是旧写法；新版本的 `interrupt()` 需要自行迁移 |
 
 
 
@@ -903,19 +903,19 @@ flowchart TD
 
 | 环节 | 技术方案 |
 |---|---|
-| 检索 | 【原文】向量检索 / 关键词检索；【补充】两者可混合（如向量 + BM25） |
-| 常见工具 | 【原文】向量数据库、全文搜索引擎、文档解析器、重排序模型、知识图谱、SQL 查询工具、网页搜索工具 |
-| 查询改写 | 【原文】检索不足时改写查询后重新检索 |
-| 生成后校验 | 【原文】引用与事实校验，降低幻觉 |
-| **框架与组件** | 【仓库】LangChain + `langchain-pinecone`（`PineconeVectorStore`，托管向量库，RAG_CustomerService_KQA）；`faiss-cpu` + `sentence-transformers`（本地向量检索，HealthAssistant）；FAISS（LegalAssistant）；WindOnMAgent 不用框架，自写 BM25 + 嵌入 + 重排服务。<br>【补充·未核实】可选：LlamaIndex（数据接入和检索框架）；Chroma、Milvus、pgvector、Elasticsearch（向量 / 全文库）；Neo4j（图谱）。这些我未查证当前版本和能力 |
+| 检索 |    向量检索 / 关键词检索；   两者可混合（如向量 + BM25） |
+| 常见工具 |    向量数据库、全文搜索引擎、文档解析器、重排序模型、知识图谱、SQL 查询工具、网页搜索工具 |
+| 查询改写 |    检索不足时改写查询后重新检索 |
+| 生成后校验 |    引用与事实校验，降低幻觉 |
+| **框架与组件** | LangChain + `langchain-pinecone`（`PineconeVectorStore`，托管向量库，RAG_CustomerService_KQA）；`faiss-cpu` + `sentence-transformers`（本地向量检索，HealthAssistant）；FAISS（LegalAssistant）；WindOnMAgent 不用框架，自写 BM25 + 嵌入 + 重排服务。<br>【补充·未核实】可选：LlamaIndex（数据接入和检索框架）；Chroma、Milvus、pgvector、Elasticsearch（向量 / 全文库）；Neo4j（图谱）。这些我未查证当前版本和能力 |
 
-**与"知识库问答"的区别**【原文】：只查制度，知识库问答就够；若还要结合身份、费用、地区、审批流程做判断，才升级为 Agent。
+**与"知识库问答"的区别**   ：只查制度，知识库问答就够；若还要结合身份、费用、地区、审批流程做判断，才升级为 Agent。
 
 
 
 ###2.10. 工具调用与异常恢复
 
-**异常分类处理**【原文】
+**异常分类处理**   
 
 | 情况 | 处理 |
 |---|---|
@@ -924,18 +924,18 @@ flowchart TD
 | 权限错误 | 请求授权或人工处理，暂停任务 |
 | 服务异常 | 降级，返回部分结果或失败信息 |
 
-**生产环境建议设置**【原文】：最大推理步数、最大工具调用次数、单次调用超时、总任务超时、最大重试次数、**指数退避**、**幂等键**、工具调用审计日志、失败降级策略、敏感参数脱敏。
+**生产环境建议设置**   ：最大推理步数、最大工具调用次数、单次调用超时、总任务超时、最大重试次数、**指数退避**、**幂等键**、工具调用审计日志、失败降级策略、敏感参数脱敏。
 
 **框架与协议**
 
 | 需求 | 方案 |
 |---|---|
-| 工具接入标准 | 【补充·已核实】**MCP**（Model Context Protocol），规范版本 2026-07-28；官方 Tier 1 SDK 有 TypeScript、Python、C#、Go、Rust、Ruby |
-| MCP Python SDK | 【补充·已核实】v2 是当前稳定线：`FastMCP` 改名为 `MCPServer`，新增 `Client` 类；v1 仍可用，但需固定 `mcp<2`。**仓库 MCPSevClient 用 `FastMCP` + `ClientSession`，依赖 `mcp>=1.2.0,<2`，即 v1 写法，升级时需改** |
-| 步数与递归保护 | 【补充·已核实】LangGraph `recursion_limit` |
-| 审计与观测 | 【补充·已核实】LangSmith（LangGraph）；OpenAI Agents SDK 内置 tracing；Google ADK 在 Vertex AI 上用 Cloud Trace / Cloud Logging |
-| 输入输出拦截 | 【补充·已核实】OpenAI Agents SDK 的 `InputGuardrail` / `OutputGuardrail`；LangGraph 则把安全检查写成图里的一个节点 |
-| 重试与指数退避 | 【补充·未核实】`tenacity` 等通用重试库；或在 LangGraph 里用"重试节点 + 条件边"手写 |
+| 工具接入标准 | **MCP**（Model Context Protocol），规范版本 2026-07-28；官方 Tier 1 SDK 有 TypeScript、Python、C#、Go、Rust、Ruby |
+| MCP Python SDK | v2 是当前稳定线：`FastMCP` 改名为 `MCPServer`，新增 `Client` 类；v1 仍可用，但需固定 `mcp<2`。**仓库 MCPSevClient 用 `FastMCP` + `ClientSession`，依赖 `mcp>=1.2.0,<2`，即 v1 写法，升级时需改** |
+| 步数与递归保护 | LangGraph `recursion_limit` |
+| 审计与观测 | LangSmith（LangGraph）；OpenAI Agents SDK 内置 tracing；Google ADK 在 Vertex AI 上用 Cloud Trace / Cloud Logging |
+| 输入输出拦截 | OpenAI Agents SDK 的 `InputGuardrail` / `OutputGuardrail`；LangGraph 则把安全检查写成图里的一个节点 |
+| 重试与指数退避 | `tenacity` 等通用重试库；或在 LangGraph 里用"重试节点 + 条件边"手写 |
 
 
 
@@ -976,8 +976,8 @@ flowchart TD
 状态定义 → 节点定义 → 转移条件 → 工具权限 → 超时与重试 → 审批节点 → 结果校验
 ```
 
-> 【补充·已核实】这正是 **LangGraph** "状态图（`StateGraph`）"的设计思路：状态定义 = State，节点 = Node，转移条件 = 条件边，审批节点 = `interrupt()`，循环保护 = `recursion_limit`。
-> 【仓库】本机代码里实际使用 `StateGraph` 的项目：SuperAgent、EssayWriter、GameNPC、HumanIntheLoop。TradingStrategies 的 `requirements.txt` 列了 langgraph，但代码里没有扫到 `from langgraph` 的 import；MultimodalCreativeGen 的依赖是 LangChain，`workflows/creative_chain.py` 导入的 `agents.*` 是项目自己的本地模块（Copywriter / Designer / Reviewer），不是 LangGraph。SuperAgent 的 `agents.planner/researcher/writer/analyst` 同样是本地模块。
+> 这正是 **LangGraph** "状态图（`StateGraph`）"的设计思路：状态定义 = State，节点 = Node，转移条件 = 条件边，审批节点 = `interrupt()`，循环保护 = `recursion_limit`。
+> 本机代码里实际使用 `StateGraph` 的项目：SuperAgent、EssayWriter、GameNPC、HumanIntheLoop。TradingStrategies 的 `requirements.txt` 列了 langgraph，但代码里没有扫到 `from langgraph` 的 import；MultimodalCreativeGen 的依赖是 LangChain，`workflows/creative_chain.py` 导入的 `agents.*` 是项目自己的本地模块（Copywriter / Designer / Reviewer），不是 LangGraph。SuperAgent 的 `agents.planner/researcher/writer/analyst` 同样是本地模块。
 > 注意：HumanIntheLoop 的 Python 部分用 LangGraph，但其 Node 后端被描述为 "LangGraph-style demo"（自写，不是 LangGraph 本身）；WindOnMAgent、FDIRMAgent 没有使用 Agent 框架。
 
 ### 4.2 循环必须设边界
@@ -1018,18 +1018,18 @@ flowchart TD
 
 | 层次 | 框架 / 协议 | 状态 | 作用 |
 |---|---|---|---|
-| Agent 编排 | **LangGraph** | 【已核实】活跃；仓库使用最多 | 状态图、检查点、`interrupt()`、`Send`、多 Agent 拓扑 |
-| Agent 编排 | **Microsoft Agent Framework** | 【已核实】1.0 已发布，AutoGen 与 Semantic Kernel 的继任者 | 基于图的 workflows，支持 A2A、MCP |
-| Agent 编排 | **Microsoft AutoGen** | 【已核实】**已归档，不再维护** | 官方建议新用户改用 Microsoft Agent Framework |
-| Agent 编排 | **OpenAI Agents SDK** | 【已核实】 | `Agent`、handoffs、guardrails、内置 tracing；只绑定 OpenAI 的 Responses/模型接口风格，换厂商要自行适配 |
-| Agent 编排 | **Google ADK** | 【已核实】 | `SequentialAgent`、`ParallelAgent`、`LoopAgent`；与 Vertex AI 部署结合紧 |
+| Agent 编排 | **LangGraph** |    活跃；仓库使用最多 | 状态图、检查点、`interrupt()`、`Send`、多 Agent 拓扑 |
+| Agent 编排 | **Microsoft Agent Framework** |    1.0 已发布，AutoGen 与 Semantic Kernel 的继任者 | 基于图的 workflows，支持 A2A、MCP |
+| Agent 编排 | **Microsoft AutoGen** |    **已归档，不再维护** | 官方建议新用户改用 Microsoft Agent Framework |
+| Agent 编排 | **OpenAI Agents SDK** |     | `Agent`、handoffs、guardrails、内置 tracing；只绑定 OpenAI 的 Responses/模型接口风格，换厂商要自行适配 |
+| Agent 编排 | **Google ADK** |     | `SequentialAgent`、`ParallelAgent`、`LoopAgent`；与 Vertex AI 部署结合紧 |
 | Agent 编排 | CrewAI、Pydantic AI、Semantic Kernel | 【未核实】 | 仅列名，未查证 |
 | LLM 应用层 | **LangChain**（及 `langchain-openai`、`langchain-deepseek`、`langchain-pinecone` 等集成包） | 仓库使用 | 模型封装、检索器、向量库集成 |
-| 工具协议 | **MCP** | 【已核实】规范 2026-07-28；Python SDK v2 | Agent ↔ 工具/数据（纵向） |
-| Agent 间协议 | **A2A**（`a2a-sdk`） | 【已核实】v1.0（2026-03-12）；已捐给 Linux Foundation | Agent ↔ Agent（横向），与 MCP 互补 |
-| 持久化 | `MemorySaver`（仅调试）、`SqliteSaver`、`PostgresSaver` | 【已核实】 | LangGraph 检查点 |
-| 观测 | LangSmith / OpenAI tracing / Cloud Trace | 【已核实】 | 日志、追踪、评估 |
-| RAG 组件 | Pinecone、FAISS、sentence-transformers；LlamaIndex、Chroma、Milvus、pgvector、Elasticsearch、Neo4j | 前三项【仓库】实际使用；其余【未核实】 | 向量 / 全文 / 图谱检索 |
+| 工具协议 | **MCP** |    规范 2026-07-28；Python SDK v2 | Agent ↔ 工具/数据（纵向） |
+| Agent 间协议 | **A2A**（`a2a-sdk`） |    v1.0（2026-03-12）；已捐给 Linux Foundation | Agent ↔ Agent（横向），与 MCP 互补 |
+| 持久化 | `MemorySaver`（仅调试）、`SqliteSaver`、`PostgresSaver` |     | LangGraph 检查点 |
+| 观测 | LangSmith / OpenAI tracing / Cloud Trace |     | 日志、追踪、评估 |
+| RAG 组件 | Pinecone、FAISS、sentence-transformers；LlamaIndex、Chroma、Milvus、pgvector、Elasticsearch、Neo4j | 前三项实际使用； | 向量 / 全文 / 图谱检索 |
 
 **怎么选（经验性建议）**
 - 需要人工审批、断点恢复、复杂分支：优先 LangGraph（仓库也最熟）。
@@ -1043,7 +1043,7 @@ flowchart TD
 
 ## 5 按任务特征选择工作流
 
-### 5.1 先判断是否需要 Agent【原文】
+### 5.1 先判断是否需要 Agent   
 
 适合 Agent 的特征：需要理解自然语言与意图、调用多个工具或系统、动态决策、多步骤执行。
 需谨慎的特征：不允许出错、涉及高风险操作、需要人工确认或审批。
@@ -1071,7 +1071,7 @@ flowchart TD
 | 依赖企业文档或专业知识 | RAG Agent |
 | 上线到生产环境 | 全部叠加"异常恢复"与可观测性 |
 
-### 5.3 按自主程度的人工介入方式【原文】
+### 5.3 按自主程度的人工介入方式   
 
 | Agent 类型 | 人工介入 |
 |---|---|
