@@ -6,6 +6,7 @@ info: 面向教师的 Workbuddy 等 AI 工具应用培训
 author: 教育数字化教学培训
 keywords: AI, 教师, 教学, 科研, Workbuddy
 mdc: true
+routerMode: history
 lineNumbers: false
 colorSchema: light
 transition: slide-left
